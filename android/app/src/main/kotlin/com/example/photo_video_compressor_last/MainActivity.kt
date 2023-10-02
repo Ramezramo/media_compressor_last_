@@ -177,6 +177,21 @@ class MainActivity: FlutterActivity() {
     fun deleteSource(file_path :String ) {
         println("in delete source ")
         println(file_path)
+
+        val file = File(file_path)
+
+        try {
+            // Attempt to delete the file
+            if (file.delete()) {
+                println("File deleted successfully.")
+            } else {
+                println("Failed to delete the file.")
+            }
+        } catch (e: SecurityException) {
+            println("Error: Permission denied to delete the file.")
+        } catch (e: Exception) {
+            println("An error occurred while deleting the file: ${e.message}")
+        }
     }
 
 

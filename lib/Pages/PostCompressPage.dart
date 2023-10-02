@@ -164,6 +164,8 @@ class _PostCompressionState extends State<PostCompression> {
 
     ImageCompressAndGetFile(path,isSwitched);
   }
+
+
   Future<void>comprssorVideo(path)async{
     setState(() {
       startedCompressingAvideo = true;
@@ -251,6 +253,7 @@ class _PostCompressionState extends State<PostCompression> {
   void dispose() {
     // Dispose of resources to prevent memory leaks.
     subscription.unsubscribe(); // Close the stream controller.
+
 
     super.dispose();
   }

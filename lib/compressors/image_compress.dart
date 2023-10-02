@@ -10,7 +10,17 @@ import 'package:path/path.dart' as path;
 // import '../../../vedioAndPhotosEdited/lib/Utils/Show_Notification.dart';
 
 
+Future<void> deleteFileInNative(filePath) async {
+  final channel = const MethodChannel('NativeChannel');
+  Map<String, dynamic> arguments = {
+    "filepath": filePath,  // Replace with your argument values
+  };
 
+  // Pass the arguments when invoking the method
+  Map data = await channel.invokeMethod("deleteSource", arguments);
+
+
+}
 Future<void> moveFileInNative(filePath) async {
   final channel = const MethodChannel('NativeChannel');
 
@@ -28,45 +38,6 @@ Future<File?> ImageCompressAndGetFile(file, bool deleteSource) async {
     } else if (quality >= 50) {
       perquality = 34;
     }
-
-
-    // var folderPath = '${appDocDir!.path}/0/RamezCompressed/photos';
-    // Directory(folderPath).createSync(recursive: true);
-    //
-
-    // final pathOfImage =
-    // File('$folderPath/${datetime}_compressed.jpeg');
-    // print("in 3495_34580");
-  //   var result = await FlutterImageCompress.compressWithFile(
-  //     file,
-  //     quality: perquality,
-  //     format: CompressFormat.jpeg,
-  //   );
-  //
-  //   if (result != null) {
-  //     // Create a new File with the desired file path
-  //     var appDocDir = await getExternalStorageDirectory();
-  //     File compressedFile = File('${appDocDir}/path_to_save/compressed_image.jpg');
-  //
-  //     // Write the compressed image data to the file
-  //     await compressedFile.writeAsBytes(result);
-  //
-  //     // Check if the file was successfully saved
-  //     if (await compressedFile.exists()) {
-  //       print('Compressed image saved at: ${compressedFile.path}');
-  //     } else {
-  //       print('Failed to save the compressed image.');
-  //     }
-  //   } else {
-  //     print('Compression failed. Result is null.');
-  //   }
-  //   // print("at 987_098707");
-  //   // print(pathOfImage.path);
-  //
-  //   // moveFileInNative(pathOfImage.path);
-  //   // GallerySaver.saveImage(pathOfImage.path);
-  //
-  //
 
     Uint8List? result = await FlutterImageCompress.compressWithFile(
       file,
@@ -94,16 +65,11 @@ Future<File?> ImageCompressAndGetFile(file, bool deleteSource) async {
         // Check if the file was successfully saved
         if (await compressedFile.exists()) {
           moveFileInNative(compressedFile.path);
-          // print('Compressed image saved at: ${compressedFile.path}');
-          // Fluttertoast.showToast(
-          //   msg: "the photo compressed in MyFolder",
-          //   toastLength: Toast.LENGTH_SHORT, // Duration of the toast
-          //   gravity: ToastGravity.BOTTOM,    // Location where the toast should appear
-          //   timeInSecForIosWeb: 1,          // Duration for iOS
-          //   backgroundColor: Colors.black,   // Background color of the toast
-          //   textColor: Colors.white,        // Text color of the toast message
-          //   fontSize: 10.0,                 // Font size of the toast message
-          // );
+          if (deleteSource){
+            deleteFileInNative(file);
+          }
+
+          // view message here after compressing
         } else {
           print('Failed to save the compressed image.');
         }
