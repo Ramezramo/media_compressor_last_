@@ -17,6 +17,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
+  awesome_dialog:
+    dependency: "direct main"
+    description:
+      name: awesome_dialog
+      sha256: "7da175ea284fa5da0a4d0cbdfe835c5b71d30c7b38c1770c0f27f48272ff5a08"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -81,14 +89,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.8"
-  easy_folder_picker:
-    dependency: "direct main"
-    description:
-      name: easy_folder_picker
-      sha256: ccaf2d0ddc4c3f20790892e88ba71ea783bf4d1919be2cc4dca404f98de6d97b
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.3.1"
   fake_async:
     dependency: transitive
     description:
@@ -105,22 +105,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
-  ffmpeg_kit_flutter_min_gpl:
-    dependency: "direct main"
-    description:
-      name: ffmpeg_kit_flutter_min_gpl
-      sha256: ca3dc2330c176c8ef96fb512e7a1a37ab369e15685d2e72a52ec1d50726360a0
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.1.0"
-  ffmpeg_kit_flutter_platform_interface:
-    dependency: transitive
-    description:
-      name: ffmpeg_kit_flutter_platform_interface
-      sha256: addf046ae44e190ad0101b2fde2ad909a3cd08a2a109f6106d2f7048b7abedee
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.1"
   file:
     dependency: transitive
     description:
@@ -222,14 +206,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.16"
-  flutter_share:
-    dependency: "direct main"
-    description:
-      name: flutter_share
-      sha256: ae12c1cea13b35926a109824ffac601531e40cb94ad53eeae58625eceb3eaaaa
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -256,6 +232,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.2"
+  graphs:
+    dependency: transitive
+    description:
+      name: graphs
+      sha256: aedc5a15e78fc65a6e23bcd927f24c64dd995062bcd1ca6eda65a3cff92a4d19
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.1"
   html:
     dependency: transitive
     description:
@@ -344,22 +328,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.1+1"
-  in_app_review:
-    dependency: "direct main"
-    description:
-      name: in_app_review
-      sha256: "16328b8202d36522322b95804ae5d975577aa9f584d634985849ba1099645850"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.6"
-  in_app_review_platform_interface:
-    dependency: transitive
-    description:
-      name: in_app_review_platform_interface
-      sha256: b12ec9aaf6b34d3a72aa95895eb252b381896246bdad4ef378d444affe8410ef
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.4"
   js:
     dependency: transitive
     description:
@@ -464,6 +432,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.1"
+  percent_indicator:
+    dependency: "direct main"
+    description:
+      name: percent_indicator
+      sha256: c37099ad833a883c9d71782321cb65c3a848c21b6939b6185f0ff6640d05814c
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2.3"
   permission_handler:
     dependency: "direct main"
     description:
@@ -536,6 +512,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.2.4"
+  rive:
+    dependency: transitive
+    description:
+      name: rive
+      sha256: f3b8af0898c987d68019e91d92257edd902c28c816e49de033a7272e86bd5425
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.11.4"
+  rive_common:
+    dependency: transitive
+    description:
+      name: rive_common
+      sha256: f6687f9d70e6fd3888a9b0e9c0b307966d2ce74cf00cfb01dce906c3bbada52f
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -605,70 +597,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.2"
-  url_launcher:
-    dependency: "direct main"
-    description:
-      name: url_launcher
-      sha256: "47e208a6711459d813ba18af120d9663c20bdf6985d6ad39fe165d2538378d27"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.1.14"
-  url_launcher_android:
-    dependency: transitive
-    description:
-      name: url_launcher_android
-      sha256: b04af59516ab45762b2ca6da40fa830d72d0f6045cd97744450b73493fa76330
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.1.0"
-  url_launcher_ios:
-    dependency: transitive
-    description:
-      name: url_launcher_ios
-      sha256: "7c65021d5dee51813d652357bc65b8dd4a6177082a9966bc8ba6ee477baa795f"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.1.5"
-  url_launcher_linux:
-    dependency: transitive
-    description:
-      name: url_launcher_linux
-      sha256: b651aad005e0cb06a01dbd84b428a301916dc75f0e7ea6165f80057fee2d8e8e
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.6"
-  url_launcher_macos:
-    dependency: transitive
-    description:
-      name: url_launcher_macos
-      sha256: b55486791f666e62e0e8ff825e58a023fd6b1f71c49926483f1128d3bbd8fe88
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.7"
-  url_launcher_platform_interface:
-    dependency: transitive
-    description:
-      name: url_launcher_platform_interface
-      sha256: "95465b39f83bfe95fcb9d174829d6476216f2d548b79c38ab2506e0458787618"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.5"
-  url_launcher_web:
-    dependency: transitive
-    description:
-      name: url_launcher_web
-      sha256: "2942294a500b4fa0b918685aff406773ba0a4cd34b7f42198742a94083020ce5"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.20"
-  url_launcher_windows:
-    dependency: transitive
-    description:
-      name: url_launcher_windows
-      sha256: "95fef3129dc7cfaba2bc3d5ba2e16063bb561fc6d78e63eee16162bc70029069"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.8"
   vector_math:
     dependency: transitive
     description:

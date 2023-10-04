@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
@@ -12,9 +11,11 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 
 import '../compressors/image_compress.dart';
 import '../compressors/video_compress.dart';
-// import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'Settings/all_media_copier_Settings.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 
-// import '../Utils/AdUnitIdHelper.dart';
+import 'linear_percent_indicator.dart';
+// import 'package:percent_indicator_example/sample_linear_page.dart';
 
 class PostCompression extends StatefulWidget {
   // Map map_of_Files;
@@ -23,7 +24,7 @@ class PostCompression extends StatefulWidget {
   @override
   State<PostCompression> createState() => _PostCompressionState();
 }
-
+bool isSwitched = false;
 class _PostCompressionState extends State<PostCompression> {
   var value;
   Map sortedMap = {};
@@ -56,7 +57,7 @@ class _PostCompressionState extends State<PostCompression> {
 
   late bool viewSettingsButtonsBeforePresssing = true;
 
-  late bool isSwitched = false;
+  // late bool isSwitched = false;
 
   void progress_maker() async {
 
@@ -287,11 +288,19 @@ class _PostCompressionState extends State<PostCompression> {
       valueFiltered = "0";
     }
     return Scaffold(
-      backgroundColor:Colors.black87 ,
+      backgroundColor:Colors.grey.shade200,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         elevation: 0,
         title: Text('Compressor'),
+        actions: [
+          IconButton(onPressed: (){
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => SettingsPage_3()));
+          }, icon: Icon(Icons.settings))
+        ],
       ),
       body: Column(children: [
         if (thumbnailPicFunction)
@@ -333,12 +342,20 @@ class _PostCompressionState extends State<PostCompression> {
         SizedBox(
           height: 10,
         ),
-        LinearProgressIndicator(
-          minHeight: 9,
-          value: VideoProgress, // Set the progress value (0.0 to 1.0)
-          backgroundColor: Colors.grey, // Optional: Background color
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurpleAccent), // Optional: Progress color
+        Padding(
+          padding: EdgeInsets.all(15.0),
+          child: LinearPercentIndicator(
+            width: MediaQuery.of(context).size.width - 50,
+            animation: true,
+            lineHeight: 20.0,
+            animationDuration: 2500,
+            percent: 0.8,
+            center: Text("80.0%"),
+            linearStrokeCap: LinearStrokeCap.roundAll,
+            progressColor: Colors.green,
+          ),
         ),
+
 
 
         Row(
@@ -350,7 +367,7 @@ class _PostCompressionState extends State<PostCompression> {
             Text(
               'compressed: ' + compressed.toString(),
               style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black87,
                   fontSize: 15,
                   fontWeight: FontWeight.w400),
             ),
@@ -366,7 +383,7 @@ class _PostCompressionState extends State<PostCompression> {
             Text(
               'totalFiles: ' + totalFiles.toString(),
               style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black87,
                   fontSize: 15,
                   fontWeight: FontWeight.w400),
             )
@@ -378,26 +395,22 @@ class _PostCompressionState extends State<PostCompression> {
         // if (startedCompressingAvideo)
         //   CircularProgressIndicator(),
         if (!compressionFinished)
-          Text("file name ($fileUnderCompress)",style: TextStyle(color: Colors.white)),
+          Text("file name ($fileUnderCompress)",style: TextStyle(color: Colors.black87)),
         if (compressionFinished)
+
+
+
+
           Icon(Icons.check,color: Colors.green,),
 
         if (viewSettingsButtonsBeforePresssing)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+          buildAnimatedButton(context),
 
-              Text("delete the source file ",style: TextStyle(fontSize: 20,color: Colors.white),),
-              Switch(
-                value: isSwitched,
-                onChanged: (value) {
-                  setState(() {
-                    isSwitched = value;
-                  });
-                },
-              ),
-            ],
-          ),
+
+
+
+
+
         if (viewSettingsButtonsBeforePresssing)
         Container(color: Colors.white.withOpacity(0.8),child: TextButton(onPressed: (){
           startCompressing();
@@ -406,6 +419,118 @@ class _PostCompressionState extends State<PostCompression> {
           print(value);
         }, child: Text("Start Compressing")))
       ]),
+    );
+  }
+
+  Container buildAnimatedButton(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(10),
+      child: AnimatedButton(
+            text: 'compress settings',
+            color: Colors.deepPurple,
+            pressEvent: () {
+              // AwesomeDialog(
+              //   context: context,
+              //   animType: AnimType.SCALE,
+              //   customHeader: Icon(
+              //     Icons.settings,
+              //     size: 50,
+              //   ),
+              //   btnOk: Column(
+              //     children: [
+              //       Row(
+              //         mainAxisAlignment: MainAxisAlignment.center,
+              //         children: [
+              //           Text(
+              //             "delete the source file",
+              //             style: TextStyle(fontSize: 15, color: Colors.black),
+              //           ),
+              //           Switch(
+              //             value: isSwitched,
+              //             onChanged: (value) {
+              //               setState(() {
+              //                 isSwitched = value; // Update the state variable when the switch is toggled.
+              //
+              //               });
+              //             },
+              //           ),
+              //         ],
+              //       ),
+              //       IconButton(
+              //         icon: Icon(Icons.keyboard_return),
+              //         onPressed: () {
+              //           Navigator.of(context).pop();
+              //         },
+              //       ),
+              //     ],
+              //   ),
+              //   btnOkOnPress: () {
+              //     showDialog(
+              //       context: context,
+              //       builder: (context) {
+              //         return StatefulAlertDialog();
+              //       },
+              //     );
+              //
+              //   },
+              // )
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return StatefulAlertDialog();
+                },
+              );
+            },
+          ),
+    );
+  }
+}
+
+class StatefulAlertDialog extends StatefulWidget {
+  @override
+  _StatefulAlertDialogState createState() => _StatefulAlertDialogState();
+}
+
+
+class _StatefulAlertDialogState extends State<StatefulAlertDialog> {
+
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Stateful Alert Dialog"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                "Delete the source code",
+                style: TextStyle(fontSize: 15, color: Colors.black),
+              ),
+              Switch(
+                value: isSwitched,
+                onChanged: (value) {
+                  setState(() {
+                    isSwitched = value; // Update the state variable when the switch is toggled.
+
+                  });
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text("Close"),
+        ),
+      ],
     );
   }
 }
