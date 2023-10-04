@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'package:permission_handler/permission_handler.dart';
 // import '../../../vedioAndPhotosEdited/lib/Utils/Show_Notification.dart';
 
 
@@ -22,6 +23,7 @@ Future<void> deleteFileInNative(filePath) async {
 
 }
 Future<void> moveFileInNative(filePath) async {
+
   final channel = const MethodChannel('NativeChannel');
 
   Map data = await channel.invokeMethod(filePath);
@@ -29,6 +31,7 @@ Future<void> moveFileInNative(filePath) async {
 }
 
 Future<File?> ImageCompressAndGetFile(file, bool deleteSource) async {
+
   double quality = 20;
   try {
     print("in 230948_234");

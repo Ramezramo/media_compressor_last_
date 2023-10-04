@@ -11,11 +11,12 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 
 import '../compressors/image_compress.dart';
 import '../compressors/video_compress.dart';
+import '../main.dart';
 import 'Settings/all_media_copier_Settings.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 
 import 'linear_percent_indicator.dart';
-// import 'package:percent_indicator_example/sample_linear_page.dart';
+MyApp myStartingApp = MyApp();
 
 class PostCompression extends StatefulWidget {
   // Map map_of_Files;
@@ -32,7 +33,7 @@ class _PostCompressionState extends State<PostCompression> {
   double progress = 0.0;
   var thumbnail;
 
-  late int totalFiles ;
+  late int totalFiles;
   int compressed = 0;
 
   bool compressionFinished = false;
@@ -51,13 +52,49 @@ class _PostCompressionState extends State<PostCompression> {
   double? VideoProgress = 0.0;
   late Subscription subscription;
 
-  late double? value2 ;
+  late double? value2;
 
   late String valueFiltered = "0";
 
   late bool viewSettingsButtonsBeforePresssing = true;
+  bool startedCompressingProsses = false;
 
   // late bool isSwitched = false;
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  void restarter() {
+    startedCompressingProsses = false;
+     value;
+    sortedMap = {};
+    load = true;
+    progress = 0.0;
+    thumbnail;
+
+    totalFiles;
+    compressed = 0;
+
+    compressionFinished = false;
+    thumbnailVideo;
+
+
+    thumbnailPicFunction = false;
+    thumbnailVideoFunction = false;
+
+
+    startedCompressingAvideo = false;
+
+    fileUnderCompress = "no files yet";
+
+
+     VideoProgress = 0.0;
+   subscription;
+
+    value2;
+
+  valueFiltered = "0";
+
+    viewSettingsButtonsBeforePresssing = true;
+     getCameraFilesData();
+  }
 
   void progress_maker() async {
 
@@ -68,7 +105,11 @@ class _PostCompressionState extends State<PostCompression> {
 
   void videoProgressMaker(done,total) async {
 
-    VideoProgress = done / total;
+     var VideoProgress= done / total;
+     // VideoProgress =  percentageValue! / 0.1;
+     // print("at 238974_235879");/
+     // print(percentageValue);
+     print(VideoProgress);
     setState(() {});
 
   }
@@ -182,7 +223,7 @@ class _PostCompressionState extends State<PostCompression> {
 
   Future<void> startCompressing() async {
     print("in start compressing");
-
+    startedCompressingProsses = true;
     for (final entry in sortedMap.entries) {
       final key = entry.key;
       final value = entry.value;
@@ -233,6 +274,7 @@ class _PostCompressionState extends State<PostCompression> {
       fontSize: 14,                 // Font size of the toast message
     );
     setState(() {
+      startedCompressingProsses = false;
       compressionFinished = true;
     });
   }
@@ -270,8 +312,6 @@ class _PostCompressionState extends State<PostCompression> {
 
   @override
   Widget build(BuildContext context) {
-    // print("in 23425424234");
-    // getFilesInFolderSortedByDate();
     value2 =VideoProgress == null? VideoProgress: VideoProgress! /100;
 
     try{
@@ -292,14 +332,20 @@ class _PostCompressionState extends State<PostCompression> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         elevation: 0,
-        title: Text('Compressor'),
+        title: const Text('Compressor'),
         actions: [
           IconButton(onPressed: (){
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => SettingsPage_3()));
-          }, icon: Icon(Icons.settings))
+            showDialog(
+              context: context,
+              builder: (context) {
+                return StatefulAlertDialog();
+              },
+            );
+            // Navigator.push(
+            //     context,
+            //     MaterialPageRoute(
+            //         builder: (context) => SettingsPage_3()));
+          }, icon: const Icon(Icons.settings))
         ],
       ),
       body: Column(children: [
@@ -324,7 +370,7 @@ class _PostCompressionState extends State<PostCompression> {
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height / 2.5,
             child: Image.asset(
-              "images/Screenshot (10).png",
+              "images/just-waitin-waitin.gif",
               fit: BoxFit.contain,
             ),
           ),
@@ -333,24 +379,72 @@ class _PostCompressionState extends State<PostCompression> {
         SizedBox(
           height: 10,
         ),
-        LinearProgressIndicator(
-          minHeight: 9,
-          value: progress, // Set the progress value (0.0 to 1.0)
-          backgroundColor: Colors.grey, // Optional: Background color
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurpleAccent), // Optional: Progress color
-        ),
-        SizedBox(
-          height: 10,
-        ),
+
         Padding(
-          padding: EdgeInsets.all(15.0),
+          padding: EdgeInsets.only(right: 15.0,left: 15,top: 15),
           child: LinearPercentIndicator(
             width: MediaQuery.of(context).size.width - 50,
-            animation: true,
+            // animation: true,
             lineHeight: 20.0,
-            animationDuration: 2500,
-            percent: 0.8,
-            center: Text("80.0%"),
+            // animationDuration: 1000,
+            percent: progress!,
+            center: compressionFinished ? Text("%100"):Text("%"+progress.toString()[2]+"0"),
+            linearStrokeCap: LinearStrokeCap.roundAll,
+            progressColor: Colors.green,
+          ),
+        ),
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (load)
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: CircularProgressIndicator(),
+              )
+            else
+              Text(
+                'totalFiles: ' + totalFiles.toString(),
+                style: TextStyle(
+                    color: Colors.black87,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400),
+              ),
+            SizedBox(
+              width: 20,
+            ),
+            if (load)
+              CircularProgressIndicator()
+            else
+              Text(
+                'compressed: ' + compressed.toString(),
+                style: TextStyle(
+                    color: Colors.black87,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400),
+              ),
+            if (!startedCompressingProsses)
+            IconButton(onPressed: (){
+              print("restart");
+
+              setState(() {
+                restarter();
+              });
+
+              // navigatorKey.currentState?.pushReplacement(
+              //     MaterialPageRoute(builder: (context) => MyApp()));
+            }, icon: Icon(Icons.refresh),)
+          ],
+        ),
+        Padding(
+          padding: EdgeInsets.only(right: 15.0,left: 15,bottom: 15),
+          child: LinearPercentIndicator(
+            width: MediaQuery.of(context).size.width - 50,
+            // animation: true,
+            lineHeight: 20.0,
+            // animationDuration: 1000,
+            percent: double.parse("0.${valueFiltered}"),
+            center: Text("%"+valueFiltered),
             linearStrokeCap: LinearStrokeCap.roundAll,
             progressColor: Colors.green,
           ),
@@ -358,66 +452,24 @@ class _PostCompressionState extends State<PostCompression> {
 
 
 
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (load)
-              CircularProgressIndicator()
-            else
-            Text(
-              'compressed: ' + compressed.toString(),
-              style: TextStyle(
-                  color: Colors.black87,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w400),
-            ),
-            SizedBox(
-              width: 20,
-            ),
-            if (load)
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: CircularProgressIndicator(),
-              )
-            else
-            Text(
-              'totalFiles: ' + totalFiles.toString(),
-              style: TextStyle(
-                  color: Colors.black87,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w400),
-            )
-          ],
-        ),
-        SizedBox(
+
+        const SizedBox(
           height: 10,
         ),
-        // if (startedCompressingAvideo)
-        //   CircularProgressIndicator(),
+
         if (!compressionFinished)
           Text("file name ($fileUnderCompress)",style: TextStyle(color: Colors.black87)),
         if (compressionFinished)
-
-
-
 
           Icon(Icons.check,color: Colors.green,),
 
         if (viewSettingsButtonsBeforePresssing)
           buildAnimatedButton(context),
 
-
-
-
-
-
-        if (viewSettingsButtonsBeforePresssing)
-        Container(color: Colors.white.withOpacity(0.8),child: TextButton(onPressed: (){
-          startCompressing();
-          print("start compressing pressed");
-
-          print(value);
-        }, child: Text("Start Compressing")))
+        // if (viewSettingsButtonsBeforePresssing)
+        // Container(color: Colors.white.withOpacity(0.8),child: TextButton(onPressed: (){
+        //
+        // }, child: Text()))
       ]),
     );
   }
@@ -426,9 +478,13 @@ class _PostCompressionState extends State<PostCompression> {
     return Container(
       padding: EdgeInsets.all(10),
       child: AnimatedButton(
-            text: 'compress settings',
+            text: 'Start Compressing',
             color: Colors.deepPurple,
             pressEvent: () {
+              startCompressing();
+              print("start compressing pressed");
+
+              print(value);
               // AwesomeDialog(
               //   context: context,
               //   animType: AnimType.SCALE,
@@ -474,12 +530,7 @@ class _PostCompressionState extends State<PostCompression> {
               //
               //   },
               // )
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return StatefulAlertDialog();
-                },
-              );
+
             },
           ),
     );

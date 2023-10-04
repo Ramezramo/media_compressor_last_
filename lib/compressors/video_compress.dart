@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:video_compress/video_compress.dart';
 import 'package:path/path.dart' as path;
@@ -30,6 +31,7 @@ Future<void> deleteFileInNative(filePath) async {
 }
 
 Future<void> compressVideo(String filePath, bool deleteSource) async {
+
   await VideoCompress.setLogLevel(0);
   print("at 3294_234098");
   print(filePath);

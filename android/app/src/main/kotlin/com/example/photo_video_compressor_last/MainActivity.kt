@@ -37,14 +37,14 @@ class MainActivity: FlutterActivity() {
 
                 //val number = getRandomNumber();
                 //result.success(mapOf("RandomNumber" to number));
-                val arg1 = call.argument<String>("arg1")
-                val arg2 = call.argument<String>("arg2")
-                println(arg1)
+//                val arg1 = call.argument<String>("arg1")
+//                val arg2 = call.argument<String>("arg2")
+//                println(arg1)
 
                 println("creating the folder ")
 
-                val foldercreate = createTheFolder();
-                result.success(foldercreate)
+                createTheFolder();
+//                result.success(foldercreate)
 
             }else if (call.method=="giveMEcameraData"){
 
@@ -96,6 +96,7 @@ class MainActivity: FlutterActivity() {
 
 
     fun moveFile(from: String, to: String) {
+        createTheFolder();
         println("inside the move function")
         println("the from ")
         println(from)
