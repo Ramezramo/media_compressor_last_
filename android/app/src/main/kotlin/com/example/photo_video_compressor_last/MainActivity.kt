@@ -19,7 +19,12 @@ import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
-
+import android.net.Uri
+import android.database.Cursor
+//import android.provider.MediaStore
+//import io.flutter.embedding.android.FlutterActivity
+//import io.flutter.embedding.engine.FlutterEngine
+//import io.flutter.plugin.common.MethodChannel
 
 
 
@@ -33,26 +38,20 @@ class MainActivity: FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
             call, result ->
-            if(call.method=="createFolder"){
-
-                //val number = getRandomNumber();
-                //result.success(mapOf("RandomNumber" to number));
-//                val arg1 = call.argument<String>("arg1")
-//                val arg2 = call.argument<String>("arg2")
-//                println(arg1)
-
+            if(call.method=="createFolder") {
                 println("creating the folder ")
-
                 createTheFolder();
-//                result.success(foldercreate)
 
+
+            }else if (call.method == "getFilePath") {
+                println("there is nothing to worry about")
+//                    val uri = Uri.parse(call.argument<String>("uri"))
+//                    val filePath = openImagePicker()
+//                    result.success(filePath)
             }else if (call.method=="giveMEcameraData"){
-
                 var dataReturn = getCameraData()
                 result.success(dataReturn)
-
             } else if (call.method=="deleteSource"){
-
                 val file_path = call.argument<String>("filepath")
                 val filePathAsString = file_path?.toString() ?: ""
                 deleteSource(filePathAsString)
@@ -62,19 +61,36 @@ class MainActivity: FlutterActivity() {
 
             else{
                 val deleteSource = call.argument<String>("arg1")
-                moveFile(call.method,"/storage/emulated/0/MyFolder")
+                moveFile(call.method,"/storage/emulated/0/Compressed_media_RM")
             }
         }
     }
-
-
+//    private fun openImagePicker() {
+//        println("in open image picker id 453_34534")
+//        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+//        startActivityForResult(intent, REQUEST_IMAGE_PICKER)
+//    }
+//
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//
+//        if (requestCode == REQUEST_IMAGE_PICKER && resultCode == RESULT_OK) {
+//            val selectedImageUri: Uri? = data?.data
+//            if (selectedImageUri != null) {
+//                val filePath = getRealPathFromURI(selectedImageUri)
+//                // Communicate the file path back to Flutter
+//                val methodChannel = MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, "your_channel_name")
+//                methodChannel.invokeMethod("onImagePicked", mapOf("filePath" to filePath))
+//            }
+//        }
+//    }
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun createTheFolder(){
 
         println("inside the function")
         val extStoragePath = Environment.getExternalStorageDirectory ().absolutePath
         // Create a folder name
-        val folderName = "MyFolder"
+        val folderName = "Compressed_media_RM"
         // Create a File object with the folder path
         val folder = File (extStoragePath, folderName)
 

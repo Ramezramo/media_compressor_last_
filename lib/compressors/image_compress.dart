@@ -12,7 +12,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 
 Future<void> deleteFileInNative(filePath) async {
-  final channel = const MethodChannel('NativeChannel');
+  const channel = MethodChannel('NativeChannel');
   Map<String, dynamic> arguments = {
     "filepath": filePath,  // Replace with your argument values
   };
@@ -24,13 +24,14 @@ Future<void> deleteFileInNative(filePath) async {
 }
 Future<void> moveFileInNative(filePath) async {
 
-  final channel = const MethodChannel('NativeChannel');
+  const channel = MethodChannel('NativeChannel');
 
   Map data = await channel.invokeMethod(filePath);
 
 }
 
 Future<File?> ImageCompressAndGetFile(file, bool deleteSource) async {
+  print("$deleteSource at 987-98789");
 
   double quality = 20;
   try {
@@ -69,6 +70,9 @@ Future<File?> ImageCompressAndGetFile(file, bool deleteSource) async {
         if (await compressedFile.exists()) {
           moveFileInNative(compressedFile.path);
           if (deleteSource){
+            print("deleting 345_2352345");
+            print("id 578_67867");
+            print(file);
             deleteFileInNative(file);
           }
 
@@ -86,8 +90,14 @@ Future<File?> ImageCompressAndGetFile(file, bool deleteSource) async {
 
   }
    catch (e) {
-    print("hola");
-    print(e.toString());
+    if (kDebugMode) {
+      print("hola");
+      print(e.toString());
+    }
+    // if (kDebugMode) {
+    //
+    // }
     Fluttertoast.showToast(msg: 'Compression failed');
-}}
+}
+  return null;}
 
