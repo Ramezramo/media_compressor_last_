@@ -16,9 +16,24 @@ import 'package:flutter/services.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
-import '../compressors/image_compress.dart';
-import '../compressors/video_compress.dart';
-import 'linear_percent_indicator.dart';
+import '../../compressors/image_compress.dart';
+import '../../compressors/video_compress.dart';
+import '../../main.dart';
+import '../linear_percent_indicator.dart';
+
+// import 'engine/pagevoids.dart';
+// import 'engine/pagevoids.dart';
+Future<void> showTost(text) async {
+  Fluttertoast.showToast(
+    msg: text,
+    toastLength: Toast.LENGTH_SHORT, // Duration of the toast
+    gravity: ToastGravity.BOTTOM, // Location where the toast should appear
+    timeInSecForIosWeb: 1, // Duration for iOS
+    backgroundColor: Colors.black, // Background color of the toast
+    textColor: Colors.white, // Text color of the toast message
+    fontSize: 14, // Font size of the toast message
+  );
+}
 
 class MainHomePage extends StatefulWidget {
   @override
@@ -27,6 +42,32 @@ class MainHomePage extends StatefulWidget {
 
 bool isSwitched = false;
 const channel = MethodChannel('NativeChannel');
+
+Future<bool> requestStoragePermission() async {
+  final status = await Permission.storage.request();
+  if (status.isGranted) {
+    // Permission is granted; you can now access the directory
+    return true;
+  } else if (status.isPermanentlyDenied) {
+    // The user has permanently denied the permission, you can open the app settings
+    await openAppSettings();
+    return false;
+  } else {
+    // Permission is denied
+    return false;
+  }
+}
+
+Future<void> comprssorImageone() async {
+  requestStoragePermission();
+  final picker = ImagePicker();
+  print("id 89_097809099");
+  print(isSwitched);
+  final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  if (pickedFile != null) ImageCompressAndGetFile(pickedFile?.path, isSwitched);
+  if (pickedFile != null)
+    showTost("image saved in /storage/emulated/0/Compressed_media_RM");
+}
 
 class _MainHomePageState extends State<MainHomePage> {
   final double _initFabHeight = 120.0;
@@ -76,6 +117,7 @@ class _MainHomePageState extends State<MainHomePage> {
   var isCompressing_From_Module = false;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   bool preparingFileToCompress = false;
+  bool firsPageIdentifier = true;
   void restarter() {
     bool preparingFileToCompress = false;
     startedCompressingProsses = false;
@@ -107,30 +149,6 @@ class _MainHomePageState extends State<MainHomePage> {
 
     viewSettingsButtonsBeforePresssing = true;
     getCameraFilesData();
-  }
-
-  Future<void> showTost(text) async {
-    Fluttertoast.showToast(
-      msg: text,
-      toastLength: Toast.LENGTH_SHORT, // Duration of the toast
-      gravity: ToastGravity.BOTTOM, // Location where the toast should appear
-      timeInSecForIosWeb: 1, // Duration for iOS
-      backgroundColor: Colors.black, // Background color of the toast
-      textColor: Colors.white, // Text color of the toast message
-      fontSize: 14, // Font size of the toast message
-    );
-  }
-
-  Future<void> comprssorImageone() async {
-    requestStoragePermission();
-    final picker = ImagePicker();
-    print("id 89_097809099");
-    print(isSwitched);
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null)
-      ImageCompressAndGetFile(pickedFile?.path, isSwitched);
-    if (pickedFile != null)
-      showTost("image saved in /storage/emulated/0/Compressed_media_RM");
   }
 
   Future<String?> getFilePathFromContentUri(String contentUri) async {
@@ -188,21 +206,6 @@ class _MainHomePageState extends State<MainHomePage> {
     var VideoProgress = done / total;
     print(VideoProgress);
     setState(() {});
-  }
-
-  Future<bool> requestStoragePermission() async {
-    final status = await Permission.storage.request();
-    if (status.isGranted) {
-      // Permission is granted; you can now access the directory
-      return true;
-    } else if (status.isPermanentlyDenied) {
-      // The user has permanently denied the permission, you can open the app settings
-      await openAppSettings();
-      return false;
-    } else {
-      // Permission is denied
-      return false;
-    }
   }
 
   Future<Map> getCameraFilesData() async {
@@ -297,7 +300,10 @@ class _MainHomePageState extends State<MainHomePage> {
 
   Future<void> startCompressing() async {
     print("in start compressing");
-    startedCompressingProsses = true;
+    setState(() {
+      startedCompressingProsses = true;
+
+    });
     for (final entry in map_Contains_Files_Names_Sorted_By_Date.entries) {
       final key = entry.key;
       final value = entry.value;
@@ -413,21 +419,7 @@ class _MainHomePageState extends State<MainHomePage> {
           Positioned(
             right: 20.0,
             bottom: _fabHeight,
-            child: FloatingActionButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return StatefulAlertDialog();
-                  },
-                );
-              },
-              backgroundColor: Colors.white,
-              child: Icon(
-                Icons.settings,
-                color: Theme.of(context).primaryColor,
-              ),
-            ),
+            child: settingFloatingButton(),
           ),
 
           Positioned(
@@ -455,33 +447,11 @@ class _MainHomePageState extends State<MainHomePage> {
             const SizedBox(
               height: 12.0,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  width: 30,
-                  height: 5,
-                  decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.all(Radius.circular(12.0))),
-                ),
-              ],
-            ),
+            aRowWithBoxDecoration(),
             const SizedBox(
               height: 18.0,
             ),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  "swipe up to choose from specified folder",
-                  style: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontSize: 15.0,
-                  ),
-                ),
-              ],
-            ),
+            aRowContainsSwipeUpText(),
             const SizedBox(
               height: 36.0,
             ),
@@ -503,13 +473,7 @@ class _MainHomePageState extends State<MainHomePage> {
                                   blurRadius: 8.0,
                                 )
                               ]),
-                          child: IconButton(
-                            icon: Icon(Icons.photo),
-                            color: Colors.white,
-                            onPressed: () {
-                              comprssorImageone();
-                            },
-                          ),
+                          child: singleImageCompressor(),
                         ),
                         const SizedBox(
                           height: 10,
@@ -525,25 +489,7 @@ class _MainHomePageState extends State<MainHomePage> {
                     else if (!isCompressing_From_Module)
                       Column(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(10.0),
-                            decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.15),
-                                    blurRadius: 8.0,
-                                  )
-                                ]),
-                            child: IconButton(
-                              icon: Icon(Icons.video_collection_rounded),
-                              color: Colors.white,
-                              onPressed: () {
-                                comprssorVideoone();
-                              },
-                            ),
-                          ),
+                          containerForPickingVideoIcon(),
                           const SizedBox(
                             height: 10,
                           ),
@@ -554,36 +500,9 @@ class _MainHomePageState extends State<MainHomePage> {
                         // center: ,
                       )
                     else
-                      CircularPercentIndicator(
-                        radius: 40.0,
-                        lineWidth: 10.0,
-                        // animation: true,
-                        percent: double.parse(
-                            "0.${video_Compressing_Percentage_Filtered}"),
-                        center: Text(
-                          "%$video_Compressing_Percentage_Filtered",
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 20.0),
-                        ),
-                        footer: IconButton(
-                          icon: const Icon(Icons.cancel),
-                          onPressed: () {
-                            setState(() {
-                              isCompressing_From_Module = false;
-                              VideoCompress.cancelCompression();
-                              // VideoProgress = 0;
-                            });
-                          },
-                        ),
-                        circularStrokeCap: CircularStrokeCap.round,
-                        progressColor: Colors.purple,
-                      ),
+                      circularPercentIndicator(),
                   ],
                 )
-                // _button("COMPRES photo", , ),
-                // _button("COMPRES Video", Icons.video_collection_rounded, Colors.red),
-                // _button("Events", Icons.event, Colors.amber),
-                // _button("More", Icons.more_horiz, Colors.green),
               ],
             ),
             const SizedBox(
@@ -613,37 +532,60 @@ class _MainHomePageState extends State<MainHomePage> {
             ),
             Container(
               padding: const EdgeInsets.only(left: 24.0, right: 24.0),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text("About",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                      )),
-                  SizedBox(
-                    height: 12.0,
-                  ),
-                  Text(
-                    """ Copyright © RAMEZMALAK 2023/10/1
-
-All rights reserved. This application and its content are protected by copyright law. The content, including but not limited to text, graphics, images, and software code, is the property of RAMEZMALAK.CORP. Any unauthorized use or reproduction of this content without permission is prohibited.
-
-For inquiries regarding the use or licensing of this content, please contact ramezmfarouk@gmail.com.
-
-RAMEZMALAK.CORP reserves the right to take legal action against any unauthorized use or infringement of its intellectual property rights.
-
-Thank you for respecting our intellectual property.
- """,
-                    softWrap: true,
-                  ),
-                ],
-              ),
+              child: copyRightSection(),
             ),
             const SizedBox(
               height: 24,
             ),
           ],
         ));
+  }
+
+  Container containerForPickingVideoIcon() {
+    return Container(
+      padding: const EdgeInsets.all(10.0),
+      decoration: const BoxDecoration(
+          color: Colors.red,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Color.fromRGBO(0, 0, 0, 0.15),
+              blurRadius: 8.0,
+            )
+          ]),
+      child: IconButton(
+        icon: Icon(Icons.video_collection_rounded),
+        color: Colors.white,
+        onPressed: () {
+          comprssorVideoone();
+        },
+      ),
+    );
+  }
+
+  CircularPercentIndicator circularPercentIndicator() {
+    return CircularPercentIndicator(
+      radius: 40.0,
+      lineWidth: 10.0,
+      // animation: true,
+      percent: double.parse("0.${video_Compressing_Percentage_Filtered}"),
+      center: Text(
+        "%$video_Compressing_Percentage_Filtered",
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+      ),
+      footer: IconButton(
+        icon: const Icon(Icons.cancel),
+        onPressed: () {
+          setState(() {
+            isCompressing_From_Module = false;
+            VideoCompress.cancelCompression();
+            // VideoProgress = 0;
+          });
+        },
+      ),
+      circularStrokeCap: CircularStrokeCap.round,
+      progressColor: Colors.purple,
+    );
   }
 
   Widget _body() {
@@ -657,124 +599,46 @@ Thank you for respecting our intellectual property.
     return SafeArea(
       child: Scaffold(
         body: Column(children: [
-          if (thumbnailPicFunction)
-            SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height / 2.5,
-              child: Image.file(
-                File(thumbnail),
-                fit: BoxFit.contain,
-              ),
-            ),
-          if (thumbnailVideoFunction)
-            Image.memory(
-              thumbnailVideoPath!,
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height / 2.5,
-              fit: BoxFit.contain,
-            ),
-          if (!thumbnailPicFunction && !thumbnailVideoFunction)
-            SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height / 2.5,
-              child: Image.asset(
-                "images/just-waitin-waitin.gif",
-                fit: BoxFit.contain,
-              ),
-            ),
-          const SizedBox(
-            height: 10,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 15.0, left: 15, top: 15),
-            child: LinearPercentIndicator(
-              width: MediaQuery.of(context).size.width - 50,
-              // animation: true,
-              lineHeight: 20.0,
-              // animationDuration: 1000,
-              percent: progress!,
-              center: compressionFinished
-                  ? const Text("%100")
-                  : Text("%${progressH}0"),
-              linearStrokeCap: LinearStrokeCap.roundAll,
-              progressColor: Colors.green,
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (load)
-                const Padding(
-                  padding: EdgeInsets.all(10.0),
-                  child: CircularProgressIndicator(),
-                ),
-              if (startedCompressingProsses || compressionFinished)
-                Text(
-                  '$compressed files compressed from $total_Files_Length_Obtained_From_NATIVE',
-                  style: const TextStyle(
-                      color: Colors.black87,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w400),
-                )
-              else if (!startedCompressingProsses)
-                Text(
-                  'camera files: $total_Files_Length_Obtained_From_NATIVE',
-                  style: TextStyle(
-                      color: Colors.black87,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w400),
-                ),
-              const SizedBox(
-                width: 20,
-              ),
-              if (load) const CircularProgressIndicator(),
-              if (!startedCompressingProsses)
-                IconButton(
-                  onPressed: () {
-                    print("restart");
-                    setState(() {
-                      restarter();
-                    });
-                  },
-                  icon: const Icon(Icons.refresh),
-                )
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 15.0, left: 15, bottom: 15),
-            child: LinearPercentIndicator(
-              width: MediaQuery.of(context).size.width - 50,
-              // animation: true,
-              lineHeight: 20.0,
-              // animationDuration: 1000,
-              percent: double.parse("0.$video_Compressing_Percentage_Filtered"),
-              center: Text("%$video_Compressing_Percentage_Filtered"),
-              linearStrokeCap: LinearStrokeCap.roundAll,
-              progressColor: Colors.green,
-            ),
-          ),
 
-          const SizedBox(
-            height: 10,
-          ),
+          if (firsPageIdentifier)
+            firstPageWidget(cameraFiles: total_Files_Length_Obtained_From_NATIVE.toString(),OnPressed:  () {
+              print("restart");
+              setState(() {
+                restarter();
+              });
+            }),if (startedCompressingProsses  )
+            startedCompressingProssesWidget(thumbnail: thumbnail,cameraFiles:total_Files_Length_Obtained_From_NATIVE.toString() , filesCompressed: '', totalFilesPercentage: '', currentFilePercentage: '', compressingVideo: false,),//else if (startedCompressingProsses || !thumbnailPicFunction )startedCompressingProssesWidget(cameraFiles:total_Files_Length_Obtained_From_NATIVE.toString() , filesCompressed: '', totalFilesPercentage: '', currentFilePercentage: '', compressingVideo: true, thumbnail: thumbnailVideoPath,),
 
-          if (!compressionFinished)
-            Text("file name ($fileUnderCompress)",
-                style: const TextStyle(color: Colors.black87)),
-          if (compressionFinished)
-            const Icon(
-              Icons.check,
-              color: Colors.green,
-            ),
+          // if (thumbnailPicFunction)
+          //   pictureThumbNail(context: context, thumbnail: thumbnail),
+          // if (thumbnailVideoFunction)
+          // videoThumbnail(
+          //     thumbnailVideoPath: thumbnailVideoPath, context: context),
+          // if (!thumbnailPicFunction && !thumbnailVideoFunction)
+          //   WaitingThumbNail(context: context),
+          // const SizedBox(
+          //   height: 10,
+          // ),
 
-          if (viewSettingsButtonsBeforePresssing) buildAnimatedButton(context)else if (!viewSettingsButtonsBeforePresssing && startedCompressingProsses)IconButton(
-            icon: Icon(Icons.stop_circle_rounded),
-            iconSize: 45,
-            color: Colors.red,
-            onPressed: () {
-
-            },
-          )
+          // rowOfTextOfCompressedFilesNum(),
+          // linearPercentIndicatorWithPadding(
+          //     context: context,
+          //     video_Compressing_Percentage_Filtered:
+          //         video_Compressing_Percentage_Filtered),
+          //
+          // const SizedBox(
+          //   height: 10,
+          // ),
+          //
+          // if (!compressionFinished)
+          //   textOfFileBeingCompressedName(fileUnderCompress: fileUnderCompress),
+          // if (compressionFinished) TheIconOFDone(),
+          //
+          if (viewSettingsButtonsBeforePresssing)
+            StartCompressongButton(context)
+          // else if (!viewSettingsButtonsBeforePresssing &&
+          //     startedCompressingProsses)
+          //   TheButtonOfStop()
           // if (viewSettingsButtonsBeforePresssing)
           // Container(color: Colors.white.withOpacity(0.8),child: TextButton(onPressed: (){
         ]),
@@ -782,7 +646,9 @@ Thank you for respecting our intellectual property.
     );
   }
 
-  Container buildAnimatedButton(BuildContext context) {
+
+
+  Container StartCompressongButton(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(10),
       child: AnimatedButton(
@@ -790,12 +656,419 @@ Thank you for respecting our intellectual property.
         color: Colors.deepPurple,
         pressEvent: () {
           if (!kIsWeb) {
+            setState(() {
+              firsPageIdentifier = false;
+            });
             startCompressing();
-            print("start compressing pressed");
-            print("hello");
-            // print(value);
+
           }
         },
+      ),
+    );
+  }
+}
+
+class startedCompressingProssesWidget extends StatelessWidget {
+  final bool? compressingVideo;
+  final String totalFilesPercentage;
+
+  final String  currentFilePercentage;
+  final String cameraFiles ;
+
+  final String filesCompressed;
+  final thumbnail;
+
+  const startedCompressingProssesWidget({super.key, required this.cameraFiles,required this.filesCompressed,required this.totalFilesPercentage,required this.currentFilePercentage, required this.compressingVideo,required this.thumbnail});
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        if (pictureThumbNail == false)
+    videoThumbnail(
+        thumbnailVideoPath: thumbnail, context: context)else
+
+          pictureThumbNail(context: context, thumbnail: thumbnail),
+        linearPercentIndicatorWithPadding(
+            context: context,
+            video_Compressing_Percentage_Filtered: "00"),
+        linearPercentIndicatorWithPadding(
+            context: context,
+            video_Compressing_Percentage_Filtered: "00"),
+      ],
+    );
+  }
+}
+
+class firstPageWidget extends StatelessWidget {
+  const firstPageWidget({super.key,required this.OnPressed, required this.cameraFiles});
+  final void Function()? OnPressed;
+  final String cameraFiles ;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        WaitingThumbNail(context: context),
+        linearPercentIndicatorWithPadding(
+            context: context,
+            video_Compressing_Percentage_Filtered: "00"),
+        rowOfTextOfCompressedFilesNum(OnPressed: OnPressed, compressorIsRunning: false ,compressed: "",total_Files_Length: cameraFiles,),
+        linearPercentIndicatorWithPadding(
+            context: context,
+            video_Compressing_Percentage_Filtered: "00"),
+      ],
+    );
+  }
+}
+
+class reloadButton extends StatelessWidget {
+   const reloadButton({super.key, this.OnPressed});
+  final void Function()? OnPressed;
+  @override
+  Widget build(BuildContext context) {
+    return  IconButton(
+      onPressed: OnPressed,
+      icon: const Icon(Icons.refresh),
+    );
+  }
+}
+
+class rowOfTextOfCompressedFilesNum extends StatelessWidget {
+  const rowOfTextOfCompressedFilesNum({super.key, this.OnPressed, required this.compressorIsRunning, required this.compressed, required this.total_Files_Length});
+  final void Function()? OnPressed;
+  final bool compressorIsRunning;
+  final String compressed;
+  final String total_Files_Length;
+  @override
+  Widget build(BuildContext context) {
+    return  Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+
+        if (compressorIsRunning)
+          Text(
+            '$compressed files compressed from $total_Files_Length',
+            style: const TextStyle(
+                color: Colors.black87,
+                fontSize: 15,
+                fontWeight: FontWeight.w400),
+          )
+        else if (!compressorIsRunning)
+          Text(
+            'camera files: $total_Files_Length',
+            style: TextStyle(
+                color: Colors.black87,
+                fontSize: 15,
+                fontWeight: FontWeight.w400),
+          ),
+        const SizedBox(
+          width: 20,
+        ),
+          reloadButton(OnPressed: OnPressed)
+      ],
+    );;
+  }
+}
+
+// Row rowOfTextOfCompressedFilesNum() {
+//   return
+// }
+
+class linearPercentIndicatorWithPadding extends StatelessWidget {
+  const linearPercentIndicatorWithPadding({
+    super.key,
+    required this.context,
+    required this.video_Compressing_Percentage_Filtered,
+  });
+
+  final BuildContext context;
+  final String video_Compressing_Percentage_Filtered;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 7,right: 7, left: 7, bottom: 7),
+      child: linearPercentIndicator(
+          context: context,
+          video_Compressing_Percentage_Filtered:
+              video_Compressing_Percentage_Filtered),
+    );
+  }
+}
+
+class pictureThumbNail extends StatelessWidget {
+  const pictureThumbNail({
+    super.key,
+    required this.context,
+    required this.thumbnail,
+  });
+
+  final BuildContext context;
+  final thumbnail;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height / 2.5,
+      child: Image.file(
+        File(thumbnail),
+        fit: BoxFit.contain,
+      ),
+    );
+  }
+}
+
+class videoThumbnail extends StatelessWidget {
+  const videoThumbnail({
+    super.key,
+    required this.thumbnailVideoPath,
+    required this.context,
+  });
+
+  final Uint8List? thumbnailVideoPath;
+  final BuildContext context;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.memory(
+      thumbnailVideoPath!,
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height / 2.5,
+      fit: BoxFit.contain,
+    );
+  }
+}
+
+class TheButtonOfStop extends StatelessWidget {
+  const TheButtonOfStop({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.stop_circle_rounded),
+      iconSize: 45,
+      color: Colors.red,
+      onPressed: () {},
+    );
+  }
+}
+
+class TheIconOFDone extends StatelessWidget {
+  const TheIconOFDone({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return const Icon(
+      Icons.check,
+      color: Colors.green,
+    );
+  }
+}
+
+class textOfFileBeingCompressedName extends StatelessWidget {
+  const textOfFileBeingCompressedName({
+    super.key,
+    required this.fileUnderCompress,
+  });
+
+  final String? fileUnderCompress;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text("file name ($fileUnderCompress)",
+        style: const TextStyle(color: Colors.black87));
+  }
+}
+
+class WaitingThumbNail extends StatelessWidget {
+  const WaitingThumbNail({
+    super.key,
+    required this.context,
+  });
+
+  final BuildContext context;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height / 2.5,
+      child: Image.asset(
+        "images/just-waitin-waitin.gif",
+        fit: BoxFit.contain,
+      ),
+    );
+  }
+}
+
+class linearPercentIndicator extends StatelessWidget {
+  const linearPercentIndicator({
+    super.key,
+    required this.context,
+    required this.video_Compressing_Percentage_Filtered,
+  });
+
+  final BuildContext context;
+  final String video_Compressing_Percentage_Filtered;
+
+  @override
+  Widget build(BuildContext context) {
+    return LinearPercentIndicator(
+      width: MediaQuery.of(context).size.width - 50,
+      // animation: true,
+      lineHeight: 20.0,
+      // animationDuration: 1000,
+      percent: double.parse("0.$video_Compressing_Percentage_Filtered"),
+      center: Text("%$video_Compressing_Percentage_Filtered"),
+      linearStrokeCap: LinearStrokeCap.roundAll,
+      progressColor: Colors.green,
+    );
+  }
+}
+
+class settingFloatingButton extends StatelessWidget {
+  const settingFloatingButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return StatefulAlertDialog();
+          },
+        );
+      },
+      backgroundColor: Colors.white,
+      child: Icon(
+        Icons.settings,
+        color: Theme.of(context).primaryColor,
+      ),
+    );
+  }
+}
+
+class copyRightSection extends StatelessWidget {
+  const copyRightSection({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text("About",
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+            )),
+        SizedBox(
+          height: 12.0,
+        ),
+        textForCopyRight(),
+      ],
+    );
+  }
+}
+
+class textForCopyRight extends StatelessWidget {
+  const textForCopyRight({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      """ Copyright © RAMEZMALAK 2023/10/1
+
+All rights reserved. This application and its content are protected by copyright law. The content, including but not limited to text, graphics, images, and software code, is the property of RAMEZMALAK.CORP. Any unauthorized use or reproduction of this content without permission is prohibited.
+
+For inquiries regarding the use or licensing of this content, please contact ramezmfarouk@gmail.com.
+
+RAMEZMALAK.CORP reserves the right to take legal action against any unauthorized use or infringement of its intellectual property rights.
+
+Thank you for respecting our intellectual property.
+ """,
+      softWrap: true,
+    );
+  }
+}
+
+class aRowContainsSwipeUpText extends StatelessWidget {
+  const aRowContainsSwipeUpText({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        swipeText(),
+      ],
+    );
+  }
+}
+
+class aRowWithBoxDecoration extends StatelessWidget {
+  const aRowWithBoxDecoration({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Container(
+          width: 30,
+          height: 5,
+          decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.all(Radius.circular(12.0))),
+        ),
+      ],
+    );
+  }
+}
+
+class singleImageCompressor extends StatelessWidget {
+  const singleImageCompressor({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.photo),
+      color: Colors.white,
+      onPressed: () {
+        comprssorImageone();
+      },
+    );
+  }
+}
+
+class swipeText extends StatelessWidget {
+  const swipeText({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      "swipe up to choose from specified folder",
+      style: TextStyle(
+        fontWeight: FontWeight.normal,
+        fontSize: 15.0,
       ),
     );
   }
