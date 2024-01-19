@@ -14,7 +14,7 @@ import 'package:photo_video_compressor_last/Pages/src/panel.dart';
 
 import 'package:flutter/services.dart';
 import 'package:video_compress/video_compress.dart';
-// import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 import '../compressors/image_compress.dart';
 import '../compressors/video_compress.dart';
@@ -27,9 +27,8 @@ class MainHomePage extends StatefulWidget {
 
 bool isSwitched = false;
 const channel = MethodChannel('NativeChannel');
+
 class _MainHomePageState extends State<MainHomePage> {
-
-
   final double _initFabHeight = 120.0;
   double _fabHeight = 0;
   double _panelHeightOpen = 0;
@@ -57,9 +56,6 @@ class _MainHomePageState extends State<MainHomePage> {
   /// if compressing finished view the true widget and view a widget
   /// to tell the user the compressing process finished
   bool compressionFinished = false;
-
-
-
 
   late bool thumbnailPicFunction = false;
   late bool thumbnailVideoFunction = false;
@@ -131,20 +127,23 @@ class _MainHomePageState extends State<MainHomePage> {
     print("id 89_097809099");
     print(isSwitched);
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) ImageCompressAndGetFile(pickedFile?.path, isSwitched);
+    if (pickedFile != null)
+      ImageCompressAndGetFile(pickedFile?.path, isSwitched);
     if (pickedFile != null)
       showTost("image saved in /storage/emulated/0/Compressed_media_RM");
   }
 
   Future<String?> getFilePathFromContentUri(String contentUri) async {
     try {
-      final String? filePath = await channel.invokeMethod('getFilePath', {'uri': contentUri});
+      final String? filePath =
+          await channel.invokeMethod('getFilePath', {'uri': contentUri});
       return filePath;
     } catch (e) {
       print('Error getting file path: $e');
       return null;
     }
   }
+
   Future<void> comprssorVideoone() async {
     requestStoragePermission();
     final picker = ImagePicker();
@@ -152,14 +151,12 @@ class _MainHomePageState extends State<MainHomePage> {
       preparingFileToCompress = true;
     });
 
-
     // FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.video);
     // String? videoPath = result?.files.single.path;
     // print("id 09ew70097 $videoPath");
     //
     // final filePath = await getFilePathFromContentUri(videoPath!);
     // print('Selected video path: $filePath');
-
 
     final pickedFile = await picker.pickVideo(source: ImageSource.gallery);
     print(pickedFile);
@@ -236,7 +233,8 @@ class _MainHomePageState extends State<MainHomePage> {
     setState(() {
       load = false;
     });
-    total_Files_Length_Obtained_From_NATIVE = map_Contains_Files_Names_Sorted_By_Date.length;
+    total_Files_Length_Obtained_From_NATIVE =
+        map_Contains_Files_Names_Sorted_By_Date.length;
 
     return map_Contains_Files_Names_Sorted_By_Date;
   }
@@ -270,15 +268,15 @@ class _MainHomePageState extends State<MainHomePage> {
     return filesInFolder;
   }
 
-  // Future<Uint8List?> createVideoThumbnail(String videoPath) async {
-  //   var thumbnail = await VideoThumbnail.thumbnailData(
-  //     video: videoPath,
-  //     imageFormat: ImageFormat.JPEG,
-  //     maxWidth: 128, // Set the desired thumbnail width (adjust as needed)
-  //     quality: 25, // Set the image quality (adjust as needed)
-  //   );
-  //   return thumbnail;
-  // }
+  Future<Uint8List?> createVideoThumbnail(String videoPath) async {
+    var thumbnail = await VideoThumbnail.thumbnailData(
+      video: videoPath,
+      imageFormat: ImageFormat.JPEG,
+      maxWidth: 128, // Set the desired thumbnail width (adjust as needed)
+      quality: 25, // Set the image quality (adjust as needed)
+    );
+    return thumbnail;
+  }
 
   Future<void> comprssImage(path) async {
     ImageCompressAndGetFile(path, isSwitched);
@@ -307,7 +305,11 @@ class _MainHomePageState extends State<MainHomePage> {
         viewSettingsButtonsBeforePresssing = false;
       });
 
-      if (key.endsWith(".jpg") || key.endsWith(".png")) {
+      if (key.endsWith(".jpg") ||
+          key.endsWith(".jpeg") ||
+          key.endsWith(".png") ||
+          key.endsWith(".gif") ||
+          key.endsWith(".webp")) {
         print(key); // This will print the keys that end with ".jpg"
         setState(() {
           fileUnderCompress = key;
@@ -322,9 +324,12 @@ class _MainHomePageState extends State<MainHomePage> {
           compressed++;
           progress_maker();
         });
-      } else if (key.endsWith(".mp4")) {
+      } else if (key.endsWith(".mp4") ||
+          key.endsWith(".mov") ||
+          key.endsWith(".mkv") ||
+          key.endsWith(".avi")) {
         print(key); // This will print the keys that end with ".mp4"
-        // thumbnailVideoPath = await createVideoThumbnail(key);
+        thumbnailVideoPath = await createVideoThumbnail(key);
         setState(() {
           fileUnderCompress = key;
           thumbnailPicFunction = false;
@@ -370,11 +375,13 @@ class _MainHomePageState extends State<MainHomePage> {
   @override
   Widget build(BuildContext context) {
     _panelHeightOpen = MediaQuery.of(context).size.height * .80;
-    video_Compressing_Percentage = VideoProgress == null ? VideoProgress : VideoProgress! / 100;
+    video_Compressing_Percentage =
+        VideoProgress == null ? VideoProgress : VideoProgress! / 100;
 
     try {
       print("at 11232309_#@4");
-      video_Compressing_Percentage_Filtered = video_Compressing_Percentage.toString().substring(2, 4);
+      video_Compressing_Percentage_Filtered =
+          video_Compressing_Percentage.toString().substring(2, 4);
       int? intValue = int.tryParse(video_Compressing_Percentage_Filtered);
       setState(() {
         videoProgressMaker(intValue, 99);
@@ -534,7 +541,6 @@ class _MainHomePageState extends State<MainHomePage> {
                               color: Colors.white,
                               onPressed: () {
                                 comprssorVideoone();
-
                               },
                             ),
                           ),
@@ -552,7 +558,8 @@ class _MainHomePageState extends State<MainHomePage> {
                         radius: 40.0,
                         lineWidth: 10.0,
                         // animation: true,
-                        percent: double.parse("0.${video_Compressing_Percentage_Filtered}"),
+                        percent: double.parse(
+                            "0.${video_Compressing_Percentage_Filtered}"),
                         center: Text(
                           "%$video_Compressing_Percentage_Filtered",
                           style: const TextStyle(
@@ -641,9 +648,9 @@ Thank you for respecting our intellectual property.
 
   Widget _body() {
     String progressH;
-    try{
+    try {
       progressH = progress.toString()[2];
-    }catch(r){
+    } catch (r) {
       progressH = "no";
     }
 
@@ -675,15 +682,12 @@ Thank you for respecting our intellectual property.
                 fit: BoxFit.contain,
               ),
             ),
-
           const SizedBox(
             height: 10,
           ),
-
           Padding(
             padding: const EdgeInsets.only(right: 15.0, left: 15, top: 15),
             child: LinearPercentIndicator(
-
               width: MediaQuery.of(context).size.width - 50,
               // animation: true,
               lineHeight: 20.0,
@@ -696,7 +700,6 @@ Thank you for respecting our intellectual property.
               progressColor: Colors.green,
             ),
           ),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -704,8 +707,16 @@ Thank you for respecting our intellectual property.
                 const Padding(
                   padding: EdgeInsets.all(10.0),
                   child: CircularProgressIndicator(),
+                ),
+              if (startedCompressingProsses || compressionFinished)
+                Text(
+                  '$compressed files compressed from $total_Files_Length_Obtained_From_NATIVE',
+                  style: const TextStyle(
+                      color: Colors.black87,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400),
                 )
-              else
+              else if (!startedCompressingProsses)
                 Text(
                   'camera files: $total_Files_Length_Obtained_From_NATIVE',
                   style: TextStyle(
@@ -716,27 +727,14 @@ Thank you for respecting our intellectual property.
               const SizedBox(
                 width: 20,
               ),
-              if (load)
-                const CircularProgressIndicator()
-              else
-                Text(
-                  'compressed: $compressed',
-                  style: const TextStyle(
-                      color: Colors.black87,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w400),
-                ),
+              if (load) const CircularProgressIndicator(),
               if (!startedCompressingProsses)
                 IconButton(
                   onPressed: () {
                     print("restart");
-
                     setState(() {
                       restarter();
                     });
-
-                    // navigatorKey.currentState?.pushReplacement(
-                    //     MaterialPageRoute(builder: (context) => MyApp()));
                   },
                   icon: const Icon(Icons.refresh),
                 )
@@ -769,8 +767,14 @@ Thank you for respecting our intellectual property.
               color: Colors.green,
             ),
 
-          if (viewSettingsButtonsBeforePresssing) buildAnimatedButton(context),
+          if (viewSettingsButtonsBeforePresssing) buildAnimatedButton(context)else if (!viewSettingsButtonsBeforePresssing && startedCompressingProsses)IconButton(
+            icon: Icon(Icons.stop_circle_rounded),
+            iconSize: 45,
+            color: Colors.red,
+            onPressed: () {
 
+            },
+          )
           // if (viewSettingsButtonsBeforePresssing)
           // Container(color: Colors.white.withOpacity(0.8),child: TextButton(onPressed: (){
         ]),
@@ -785,12 +789,12 @@ Thank you for respecting our intellectual property.
         text: 'Start Compressing',
         color: Colors.deepPurple,
         pressEvent: () {
-    if (!kIsWeb) {
-          startCompressing();
-          print("start compressing pressed");
-          print("hello");
-          // print(value);
-    }
+          if (!kIsWeb) {
+            startCompressing();
+            print("start compressing pressed");
+            print("hello");
+            // print(value);
+          }
         },
       ),
     );

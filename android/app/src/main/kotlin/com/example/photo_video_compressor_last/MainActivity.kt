@@ -37,7 +37,7 @@ class MainActivity: FlutterActivity() {
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
-            call, result ->
+                call, result ->
             if(call.method=="createFolder") {
                 println("creating the folder ")
                 createTheFolder();
@@ -59,13 +59,19 @@ class MainActivity: FlutterActivity() {
 
 
 
-            else{
-                val deleteSource = call.argument<String>("arg1")
-                moveFile(call.method,"/storage/emulated/0/Compressed_media_RM")
+            else if (call.method =="moveScours"){
+                println("moveScours CODE SLDKFJSOI3445")
+                val file_path = call.argument<String>("filepath")
+                val filePathAsString = file_path?.toString() ?: ""
+                println("this is the file path")
+                println(filePathAsString)
+                moveFile(filePathAsString,"/storage/emulated/0/Compressed_media_RM")
+            } else {
+
             }
         }
     }
-//    private fun openImagePicker() {
+    //    private fun openImagePicker() {
 //        println("in open image picker id 453_34534")
 //        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
 //        startActivityForResult(intent, REQUEST_IMAGE_PICKER)
@@ -85,7 +91,7 @@ class MainActivity: FlutterActivity() {
 //        }
 //    }
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun createTheFolder(){
+    private fun createTheFolder(): Boolean {
 
         println("inside the function")
         val extStoragePath = Environment.getExternalStorageDirectory ().absolutePath
@@ -101,60 +107,65 @@ class MainActivity: FlutterActivity() {
             if (result) {
                 // The folder was created successfully
                 Log.d ("TAG", "Folder created: $folder")
+                return true
             } else {
                 // The folder creation failed
                 Log.e ("TAG", "Folder creation failed")
+                return false
             }
         }else{
             println("the app folder is already existed")
+            return true
         }
     }
 
 
     fun moveFile(from: String, to: String) {
-        createTheFolder();
-        println("inside the move function")
-        println("the from ")
-        println(from)
-        println("the to ")
-        println(to)
+        val folderCreated = createTheFolder()
 
-        // Get the source file from the internal storage
-        val parts = from.split(File.separator)
+        if (folderCreated) {
+//            result.success("Folder created successfully")
+            // Get the source file from the internal storage
+            val parts = from.split(File.separator)
 
 // Get the last part, which should be the file name
-        val fileName = parts.last()
-        val directoryPath = parts.dropLast(1).joinToString(File.separator)
-        val sourceFile = File(directoryPath, fileName)
+            val fileName = parts.last()
+            val directoryPath = parts.dropLast(1).joinToString(File.separator)
+            val sourceFile = File(directoryPath, fileName)
 
 
-        // Get the destination directory from the external storage
-        val destinationDir = to
+            // Get the destination directory from the external storage
+            val destinationDir = to
 
-        if (destinationDir != null) {
-            // Check if the destination directory exists, and create it if not
+            if (destinationDir != null) {
+                // Check if the destination directory exists, and create it if not
 //            if (!destinationDir.exists()) {
 //                destinationDir.mkdirs()
 //            }
 
-            // Create the destination file with the same name as the source file
-            val destinationFile = File(destinationDir, sourceFile.name)
+                // Create the destination file with the same name as the source file
+                val destinationFile = File(destinationDir, sourceFile.name)
 
-            // Move the source file to the destination file using renameTo()
-            val result = sourceFile.renameTo(destinationFile)
+                // Move the source file to the destination file using renameTo()
+                val result = sourceFile.renameTo(destinationFile)
 
-            // Check if the operation was successful or not
-            if (result) {
-                // The file was moved successfully
-                println("The file was moved successfully to ${destinationFile.path}")
+                // Check if the operation was successful or not
+                if (result) {
+                    // The file was moved successfully
+                    println("The file was moved successfully to ${destinationFile.path}")
+                } else {
+                    // The file could not be moved
+                    println("The file could not be moved")
+                }
             } else {
-                // The file could not be moved
-                println("The file could not be moved")
+                // Handle the case where getExternalFilesDir returned null
+                println("External storage directory is null. File move operation failed.")
             }
         } else {
-            // Handle the case where getExternalFilesDir returned null
-            println("External storage directory is null. File move operation failed.")
+//            result.error("CREATE_FOLDER_ERROR", "Failed to create folder", null)
         }
+
+
     }
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun getCameraData(): Map<String, String> {

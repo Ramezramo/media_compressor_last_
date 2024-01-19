@@ -25,9 +25,10 @@ Future<void> deleteFileInNative(filePath) async {
 Future<void> moveFileInNative(filePath) async {
 
   const channel = MethodChannel('NativeChannel');
-
-  Map data = await channel.invokeMethod(filePath);
-
+  Map<String, dynamic> arguments = {
+    "filepath": filePath,  // Replace with your argument values
+  };
+  Map data = await channel.invokeMethod("moveScours",arguments);
 }
 
 Future<File?> ImageCompressAndGetFile(file, bool deleteSource) async {
