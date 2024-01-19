@@ -14,36 +14,52 @@ import 'package:photo_video_compressor_last/Pages/src/panel.dart';
 
 import 'package:flutter/services.dart';
 import 'package:video_compress/video_compress.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
+// import 'package:video_thumbnail/video_thumbnail.dart';
 
 import '../compressors/image_compress.dart';
 import '../compressors/video_compress.dart';
 import 'linear_percent_indicator.dart';
 
-class HomePage11 extends StatefulWidget {
+class MainHomePage extends StatefulWidget {
   @override
-  _HomePage11State createState() => _HomePage11State();
+  _MainHomePageState createState() => _MainHomePageState();
 }
 
 bool isSwitched = false;
 const channel = MethodChannel('NativeChannel');
-class _HomePage11State extends State<HomePage11> {
+class _MainHomePageState extends State<MainHomePage> {
+
+
   final double _initFabHeight = 120.0;
   double _fabHeight = 0;
   double _panelHeightOpen = 0;
   double _panelHeightClosed = 95.0;
 
-  var value;
-  Map sortedMap = {};
+  /// this map will contain a files sorted by date from the native channel
+  Map map_Contains_Files_Names_Sorted_By_Date = {};
+
+  /// if true will view loading indicator
   bool load = true;
+
+  /// video compressing progress
   double progress = 0.0;
+
+  /// the path of the generated thumbnail will be stored in this var
+  Uint8List? thumbnailVideoPath;
   var thumbnail;
 
-  late int totalFiles = 0;
+  /// for files in camera count obtained from the native channel
+  late int total_Files_Length_Obtained_From_NATIVE = 0;
+
+  /// total compressed files
   int compressed = 0;
 
+  /// if compressing finished view the true widget and view a widget
+  /// to tell the user the compressing process finished
   bool compressionFinished = false;
-  Uint8List? thumbnailVideo;
+
+
+
 
   late bool thumbnailPicFunction = false;
   late bool thumbnailVideoFunction = false;
@@ -55,9 +71,9 @@ class _HomePage11State extends State<HomePage11> {
   double? VideoProgress = 0.0;
   late Subscription subscription;
 
-  late double? value2;
+  late double? video_Compressing_Percentage;
 
-  late String valueFiltered = "0";
+  late String video_Compressing_Percentage_Filtered = "0";
 
   late bool viewSettingsButtonsBeforePresssing = true;
   bool startedCompressingProsses = false;
@@ -67,17 +83,17 @@ class _HomePage11State extends State<HomePage11> {
   void restarter() {
     bool preparingFileToCompress = false;
     startedCompressingProsses = false;
-    value;
-    sortedMap = {};
+    // value;
+    map_Contains_Files_Names_Sorted_By_Date = {};
     load = true;
     progress = 0.0;
     thumbnail;
 
-    totalFiles = 0;
+    total_Files_Length_Obtained_From_NATIVE = 0;
     compressed = 0;
 
     compressionFinished = false;
-    thumbnailVideo;
+    thumbnailVideoPath;
 
     thumbnailPicFunction = false;
     thumbnailVideoFunction = false;
@@ -89,9 +105,9 @@ class _HomePage11State extends State<HomePage11> {
     VideoProgress = 0.0;
     subscription;
 
-    value2;
+    video_Compressing_Percentage;
 
-    valueFiltered = "0";
+    video_Compressing_Percentage_Filtered = "0";
 
     viewSettingsButtonsBeforePresssing = true;
     getCameraFilesData();
@@ -167,7 +183,7 @@ class _HomePage11State extends State<HomePage11> {
   }
 
   void progress_maker() async {
-    progress = compressed / totalFiles;
+    progress = compressed / total_Files_Length_Obtained_From_NATIVE;
     setState(() {});
   }
 
@@ -208,9 +224,9 @@ class _HomePage11State extends State<HomePage11> {
       return a.value.compareTo(b.value);
     });
 
-    sortedMap = Map.fromEntries(sortedEntries);
+    map_Contains_Files_Names_Sorted_By_Date = Map.fromEntries(sortedEntries);
 
-    sortedMap.forEach((key, value) {
+    map_Contains_Files_Names_Sorted_By_Date.forEach((key, value) {
       i++;
       print(key); // This will print the keys
       print(value); // This will print the corresponding values
@@ -220,9 +236,9 @@ class _HomePage11State extends State<HomePage11> {
     setState(() {
       load = false;
     });
-    totalFiles = sortedMap.length;
+    total_Files_Length_Obtained_From_NATIVE = map_Contains_Files_Names_Sorted_By_Date.length;
 
-    return sortedMap;
+    return map_Contains_Files_Names_Sorted_By_Date;
   }
 
   Future<List<File>> getFilesInFolderSortedByDate() async {
@@ -254,15 +270,15 @@ class _HomePage11State extends State<HomePage11> {
     return filesInFolder;
   }
 
-  Future<Uint8List?> createVideoThumbnail(String videoPath) async {
-    final thumbnail = await VideoThumbnail.thumbnailData(
-      video: videoPath,
-      imageFormat: ImageFormat.JPEG,
-      maxWidth: 128, // Set the desired thumbnail width (adjust as needed)
-      quality: 25, // Set the image quality (adjust as needed)
-    );
-    return thumbnail;
-  }
+  // Future<Uint8List?> createVideoThumbnail(String videoPath) async {
+  //   var thumbnail = await VideoThumbnail.thumbnailData(
+  //     video: videoPath,
+  //     imageFormat: ImageFormat.JPEG,
+  //     maxWidth: 128, // Set the desired thumbnail width (adjust as needed)
+  //     quality: 25, // Set the image quality (adjust as needed)
+  //   );
+  //   return thumbnail;
+  // }
 
   Future<void> comprssImage(path) async {
     ImageCompressAndGetFile(path, isSwitched);
@@ -284,14 +300,14 @@ class _HomePage11State extends State<HomePage11> {
   Future<void> startCompressing() async {
     print("in start compressing");
     startedCompressingProsses = true;
-    for (final entry in sortedMap.entries) {
+    for (final entry in map_Contains_Files_Names_Sorted_By_Date.entries) {
       final key = entry.key;
       final value = entry.value;
       setState(() {
         viewSettingsButtonsBeforePresssing = false;
       });
 
-      if (key.endsWith(".jpg")) {
+      if (key.endsWith(".jpg") || key.endsWith(".png")) {
         print(key); // This will print the keys that end with ".jpg"
         setState(() {
           fileUnderCompress = key;
@@ -308,7 +324,7 @@ class _HomePage11State extends State<HomePage11> {
         });
       } else if (key.endsWith(".mp4")) {
         print(key); // This will print the keys that end with ".mp4"
-        thumbnailVideo = await createVideoThumbnail(key);
+        // thumbnailVideoPath = await createVideoThumbnail(key);
         setState(() {
           fileUnderCompress = key;
           thumbnailPicFunction = false;
@@ -354,17 +370,17 @@ class _HomePage11State extends State<HomePage11> {
   @override
   Widget build(BuildContext context) {
     _panelHeightOpen = MediaQuery.of(context).size.height * .80;
-    value2 = VideoProgress == null ? VideoProgress : VideoProgress! / 100;
+    video_Compressing_Percentage = VideoProgress == null ? VideoProgress : VideoProgress! / 100;
 
     try {
       print("at 11232309_#@4");
-      valueFiltered = value2.toString().substring(2, 4);
-      int? intValue = int.tryParse(valueFiltered);
+      video_Compressing_Percentage_Filtered = video_Compressing_Percentage.toString().substring(2, 4);
+      int? intValue = int.tryParse(video_Compressing_Percentage_Filtered);
       setState(() {
         videoProgressMaker(intValue, 99);
       });
     } catch (e) {
-      valueFiltered = "0";
+      video_Compressing_Percentage_Filtered = "0";
     }
     return Material(
       child: Stack(
@@ -536,9 +552,9 @@ class _HomePage11State extends State<HomePage11> {
                         radius: 40.0,
                         lineWidth: 10.0,
                         // animation: true,
-                        percent: double.parse("0.${valueFiltered}"),
+                        percent: double.parse("0.${video_Compressing_Percentage_Filtered}"),
                         center: Text(
-                          "%$valueFiltered",
+                          "%$video_Compressing_Percentage_Filtered",
                           style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 20.0),
                         ),
@@ -645,7 +661,7 @@ Thank you for respecting our intellectual property.
             ),
           if (thumbnailVideoFunction)
             Image.memory(
-              thumbnailVideo!,
+              thumbnailVideoPath!,
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height / 2.5,
               fit: BoxFit.contain,
@@ -667,6 +683,7 @@ Thank you for respecting our intellectual property.
           Padding(
             padding: const EdgeInsets.only(right: 15.0, left: 15, top: 15),
             child: LinearPercentIndicator(
+
               width: MediaQuery.of(context).size.width - 50,
               // animation: true,
               lineHeight: 20.0,
@@ -690,7 +707,7 @@ Thank you for respecting our intellectual property.
                 )
               else
                 Text(
-                  'camera files: $totalFiles',
+                  'camera files: $total_Files_Length_Obtained_From_NATIVE',
                   style: TextStyle(
                       color: Colors.black87,
                       fontSize: 15,
@@ -732,8 +749,8 @@ Thank you for respecting our intellectual property.
               // animation: true,
               lineHeight: 20.0,
               // animationDuration: 1000,
-              percent: double.parse("0.$valueFiltered"),
-              center: Text("%$valueFiltered"),
+              percent: double.parse("0.$video_Compressing_Percentage_Filtered"),
+              center: Text("%$video_Compressing_Percentage_Filtered"),
               linearStrokeCap: LinearStrokeCap.roundAll,
               progressColor: Colors.green,
             ),
@@ -772,7 +789,8 @@ Thank you for respecting our intellectual property.
           startCompressing();
           print("start compressing pressed");
           print("hello");
-          print(value);}
+          // print(value);
+    }
         },
       ),
     );

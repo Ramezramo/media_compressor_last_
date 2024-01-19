@@ -2,10 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-/**
- * Author: Damodar Lohani
- * profile: https://github.com/lohanidamodar
- */
+/// Author: Damodar Lohani
+/// profile: https://github.com/lohanidamodar
 
 class SettingsPage_3 extends StatelessWidget {
   static const routeName = '/SettingsPage_3';
@@ -15,6 +13,8 @@ class SettingsPage_3 extends StatelessWidget {
     fontSize: 20.0,
   );
 
+  SettingsPage_3({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +23,7 @@ class SettingsPage_3 extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         elevation: 0,
         title: Text('settings'),
-        actions: [
+        actions: const [
           // IconButton(onPressed: (){
           //   Navigator.push(
           //       context,
@@ -105,7 +105,7 @@ class SettingsPage_3 extends StatelessWidget {
                   SwitchListTile(
                     activeColor: Colors.amber,
                     value: true,
-                    title: Text("Received notification"),
+                    title: const Text("Received notification"),
                     onChanged: (val) {},
                   ),
                   _buildDivider(),
@@ -113,7 +113,7 @@ class SettingsPage_3 extends StatelessWidget {
                   /// ----------------------------------------------------------
                   /// Change Received newsletter SwitchListTile widget
                   /// ----------------------------------------------------------
-                  SwitchListTile(
+                  const SwitchListTile(
                     activeColor: Colors.amber,
                     value: false,
                     title: Text("Received newsletter"),
@@ -127,7 +127,7 @@ class SettingsPage_3 extends StatelessWidget {
                   SwitchListTile(
                     activeColor: Colors.amber,
                     value: true,
-                    title: Text("Received Offer Notification"),
+                    title: const Text("Received Offer Notification"),
                     onChanged: (val) {},
                   ),
                   _buildDivider(),
@@ -135,7 +135,7 @@ class SettingsPage_3 extends StatelessWidget {
                   /// ----------------------------------------------------------
                   /// Change Received  App Updates SwitchListTile widget
                   /// ----------------------------------------------------------
-                  SwitchListTile(
+                  const SwitchListTile(
                     activeColor: Colors.amber,
                     value: true,
                     title: Text("Received App Updates"),
@@ -154,8 +154,8 @@ class SettingsPage_3 extends StatelessWidget {
                 horizontal: 0,
               ),
               child: ListTile(
-                leading: Icon(Icons.exit_to_app),
-                title: Text("Logout"),
+                leading: const Icon(Icons.exit_to_app),
+                title: const Text("Logout"),
                 onTap: () {},
               ),
             ),

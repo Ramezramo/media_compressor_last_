@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -41,11 +42,12 @@ Future<void> compressVideo(String filePath, bool deleteSource) async {
 
     print(info!.path);
 
-    moveFileInNative(info!.path);
-    print(info!.path); // This will print the path to the compressed video
+    moveFileInNative(info.path);
+    if (kDebugMode) {
+      print(info.path);
+    } // This will print the path to the compressed video
     if (deleteSource) {
-      print("id 578_67867");
-      print(filePath);
+
       deleteFileInNative(filePath);
     }
   } catch (e) {
