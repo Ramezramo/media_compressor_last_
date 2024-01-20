@@ -20,9 +20,11 @@ import '../../compressors/image_compress.dart';
 import '../../compressors/video_compress.dart';
 import '../../main.dart';
 import '../linear_percent_indicator.dart';
+import 'dart:typed_data';
+import 'package:image/image.dart' as img;
 
-// import 'engine/pagevoids.dart';
-// import 'engine/pagevoids.dart';
+
+
 Future<void> showTost(text) async {
   Fluttertoast.showToast(
     msg: text,
@@ -86,7 +88,7 @@ class _MainHomePageState extends State<MainHomePage> {
 
   /// the path of the generated thumbnail will be stored in this var
   Uint8List? thumbnailVideoPath;
-  var thumbnail;
+  var picAsAThumbnail;
 
   /// for files in camera count obtained from the native channel
   late int total_Files_Length_Obtained_From_NATIVE = 0;
@@ -119,13 +121,14 @@ class _MainHomePageState extends State<MainHomePage> {
   bool preparingFileToCompress = false;
   bool firsPageIdentifier = true;
   void restarter() {
+    firsPageIdentifier = true;
     bool preparingFileToCompress = false;
     startedCompressingProsses = false;
     // value;
     map_Contains_Files_Names_Sorted_By_Date = {};
     load = true;
     progress = 0.0;
-    thumbnail;
+    picAsAThumbnail;
 
     total_Files_Length_Obtained_From_NATIVE = 0;
     compressed = 0;
@@ -302,7 +305,6 @@ class _MainHomePageState extends State<MainHomePage> {
     print("in start compressing");
     setState(() {
       startedCompressingProsses = true;
-
     });
     for (final entry in map_Contains_Files_Names_Sorted_By_Date.entries) {
       final key = entry.key;
@@ -321,8 +323,9 @@ class _MainHomePageState extends State<MainHomePage> {
           fileUnderCompress = key;
           thumbnailVideoFunction = false;
           thumbnailPicFunction = true;
-          thumbnail = key;
-          print(thumbnail);
+          picAsAThumbnail = key;
+          print("code LKSDJGLKJ");
+          print(picAsAThumbnail);
         });
 
         await comprssImage(key);
@@ -350,8 +353,7 @@ class _MainHomePageState extends State<MainHomePage> {
     }
     showTost("Compression complete successfully");
     setState(() {
-      startedCompressingProsses = false;
-      compressionFinished = true;
+      restarter();
     });
   }
 
@@ -599,110 +601,223 @@ class _MainHomePageState extends State<MainHomePage> {
     return SafeArea(
       child: Scaffold(
         body: Column(children: [
-
           if (firsPageIdentifier)
-            firstPageWidget(cameraFiles: total_Files_Length_Obtained_From_NATIVE.toString(),OnPressed:  () {
-              print("restart");
-              setState(() {
-                restarter();
-              });
-            }),if (startedCompressingProsses  )
-            startedCompressingProssesWidget(thumbnail: thumbnail,cameraFiles:total_Files_Length_Obtained_From_NATIVE.toString() , filesCompressed: '', totalFilesPercentage: '', currentFilePercentage: '', compressingVideo: false,),//else if (startedCompressingProsses || !thumbnailPicFunction )startedCompressingProssesWidget(cameraFiles:total_Files_Length_Obtained_From_NATIVE.toString() , filesCompressed: '', totalFilesPercentage: '', currentFilePercentage: '', compressingVideo: true, thumbnail: thumbnailVideoPath,),
-
-          // if (thumbnailPicFunction)
-          //   pictureThumbNail(context: context, thumbnail: thumbnail),
-          // if (thumbnailVideoFunction)
-          // videoThumbnail(
-          //     thumbnailVideoPath: thumbnailVideoPath, context: context),
-          // if (!thumbnailPicFunction && !thumbnailVideoFunction)
-          //   WaitingThumbNail(context: context),
-          // const SizedBox(
-          //   height: 10,
-          // ),
-
-          // rowOfTextOfCompressedFilesNum(),
-          // linearPercentIndicatorWithPadding(
-          //     context: context,
-          //     video_Compressing_Percentage_Filtered:
-          //         video_Compressing_Percentage_Filtered),
-          //
-          // const SizedBox(
-          //   height: 10,
-          // ),
-          //
-          // if (!compressionFinished)
-          //   textOfFileBeingCompressedName(fileUnderCompress: fileUnderCompress),
-          // if (compressionFinished) TheIconOFDone(),
-          //
-          if (viewSettingsButtonsBeforePresssing)
-            StartCompressongButton(context)
-          // else if (!viewSettingsButtonsBeforePresssing &&
-          //     startedCompressingProsses)
-          //   TheButtonOfStop()
-          // if (viewSettingsButtonsBeforePresssing)
-          // Container(color: Colors.white.withOpacity(0.8),child: TextButton(onPressed: (){
+            firstPageWidget(
+                pressEvent: () {
+                  setState(() {
+                    firsPageIdentifier = false;
+                  });
+                  startCompressing();
+                },
+                cameraFiles: total_Files_Length_Obtained_From_NATIVE.toString(),
+                OnPressed: () {
+                  setState(() {
+                    restarter();
+                  });
+                }),
+          if (startedCompressingProsses && thumbnailPicFunction)
+            startedCompressingPicProssesWidget(
+              picthumbnail: picAsAThumbnail,
+              cameraFiles: total_Files_Length_Obtained_From_NATIVE.toString(),
+              filesCompressed: compressed.toString(),
+              totalFilesPercentage: "${progressH}0",
+              currentFilePercentage: "99",
+            )
+          else if (startedCompressingProsses && thumbnailVideoFunction)
+            startedCompressingVidProssesWidget(
+              cameraFiles: total_Files_Length_Obtained_From_NATIVE.toString(),
+              filesCompressed: compressed.toString(),
+              totalFilesPercentage: "${progressH}0",
+              currentFilePercentage: video_Compressing_Percentage_Filtered,
+              vidthumbnail: thumbnailVideoPath,
+            )else if (compressionFinished)
+              firstPageWidget(
+                  pressEvent: () {
+                    setState(() {
+                      firsPageIdentifier = false;
+                    });
+                    startCompressing();
+                  },
+                  cameraFiles: total_Files_Length_Obtained_From_NATIVE.toString(),
+                  OnPressed: () {
+                    setState(() {
+                      restarter();
+                    });
+                  }),
         ]),
-      ),
-    );
-  }
-
-
-
-  Container StartCompressongButton(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      child: AnimatedButton(
-        text: 'Start Compressing',
-        color: Colors.deepPurple,
-        pressEvent: () {
-          if (!kIsWeb) {
-            setState(() {
-              firsPageIdentifier = false;
-            });
-            startCompressing();
-
-          }
-        },
       ),
     );
   }
 }
 
-class startedCompressingProssesWidget extends StatelessWidget {
-  final bool? compressingVideo;
-  final String totalFilesPercentage;
+class StartCompressingButton extends StatelessWidget {
+  const StartCompressingButton({
+    super.key,
+    required this.context,
+    required this.pressEvent,
+  });
+  final Function() pressEvent;
+  final BuildContext context;
 
-  final String  currentFilePercentage;
-  final String cameraFiles ;
-
-  final String filesCompressed;
-  final thumbnail;
-
-  const startedCompressingProssesWidget({super.key, required this.cameraFiles,required this.filesCompressed,required this.totalFilesPercentage,required this.currentFilePercentage, required this.compressingVideo,required this.thumbnail});
   @override
   Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: AnimatedButton(
+        text: 'Start Compressing',
+        color: Colors.deepPurple,
+        pressEvent: pressEvent,
+      ),
+    );
+  }
+}
+
+class ThumbnailViewWidget extends StatefulWidget {
+  final String imagePath;
+
+  ThumbnailViewWidget({required this.imagePath});
+
+  @override
+  State<ThumbnailViewWidget> createState() => _ThumbnailViewWidgetState();
+}
+
+class _ThumbnailViewWidgetState extends State<ThumbnailViewWidget> {
+  final double thumbnailSize = 100.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: FutureBuilder<Uint8List>(
+        future: _generateThumbnail(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done &&
+              snapshot.hasData) {
+            return Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height / 2.5,
+              child: Image.memory(
+                snapshot.data!,
+                width: thumbnailSize,
+                height: thumbnailSize,
+                fit: BoxFit.cover,
+              ),
+            );
+          } else {
+            return SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height / 2.5,
+                child: Center(child: CircularProgressIndicator()));
+          }
+        },
+      ),
+    );
+  }
+
+  Future<Uint8List> _generateThumbnail() async {
+    final File imageFile = File(widget.imagePath);
+    final Uint8List bytes = await imageFile.readAsBytes();
+
+    // Resize the image using the image package
+    final img.Image originalImage = img.decodeImage(bytes)!;
+    final img.Image thumbnail =
+        img.copyResize(originalImage, width: 100, height: 100);
+
+    // Convert the resized image back to bytes
+    return Uint8List.fromList(img.encodeJpg(thumbnail));
+  }
+}
+
+class startedCompressingVidProssesWidget extends StatelessWidget {
+  final String totalFilesPercentage;
+
+  final String currentFilePercentage;
+  final String cameraFiles;
+
+  final String filesCompressed;
+  final picthumbnail;
+  final Uint8List? vidthumbnail;
+
+  const startedCompressingVidProssesWidget({
+    super.key,
+    required this.cameraFiles,
+    required this.filesCompressed,
+    required this.totalFilesPercentage,
+    required this.currentFilePercentage,
+    this.picthumbnail,
+    this.vidthumbnail,
+  });
+  @override
+  Widget build(BuildContext context) {
+    // print("Code skdjfhskdfjh");
+    // print(pictureThumbNail);
     return Column(
       children: [
-        if (pictureThumbNail == false)
-    videoThumbnail(
-        thumbnailVideoPath: thumbnail, context: context)else
+        videoThumbnail(thumbnailVideoPath: vidthumbnail, context: context),
+        linearPercentIndicatorWithPadding(
+            context: context,
+            video_Compressing_Percentage_Filtered: totalFilesPercentage),
+        rowOfTextOfCompressedFilesNum(
+          compressed: filesCompressed,
+          total_Files_Length: cameraFiles,
+          compressorIsStatus: "1",
+        ),
+        linearPercentIndicatorWithPadding(
+            context: context,
+            video_Compressing_Percentage_Filtered: currentFilePercentage),
+      ],
+    );
+  }
+}
 
-          pictureThumbNail(context: context, thumbnail: thumbnail),
+class startedCompressingPicProssesWidget extends StatelessWidget {
+  final String totalFilesPercentage;
+
+  final String currentFilePercentage;
+  final String cameraFiles;
+
+  final String filesCompressed;
+  final picthumbnail;
+
+  const startedCompressingPicProssesWidget({
+    super.key,
+    required this.cameraFiles,
+    required this.filesCompressed,
+    required this.totalFilesPercentage,
+    required this.currentFilePercentage,
+    this.picthumbnail,
+  });
+  @override
+  Widget build(BuildContext context) {
+    print("Code skdjfhskdfjh");
+    print(picthumbnail);
+    return Column(
+      children: [
+        ThumbnailViewWidget(imagePath: picthumbnail),
         linearPercentIndicatorWithPadding(
             context: context,
-            video_Compressing_Percentage_Filtered: "00"),
+            video_Compressing_Percentage_Filtered: totalFilesPercentage),
+        rowOfTextOfCompressedFilesNum(
+          compressed: filesCompressed,
+          total_Files_Length: cameraFiles,
+          compressorIsStatus: "1",
+        ),
         linearPercentIndicatorWithPadding(
             context: context,
-            video_Compressing_Percentage_Filtered: "00"),
+            video_Compressing_Percentage_Filtered: currentFilePercentage),
       ],
     );
   }
 }
 
 class firstPageWidget extends StatelessWidget {
-  const firstPageWidget({super.key,required this.OnPressed, required this.cameraFiles});
+  const firstPageWidget(
+      {super.key,
+      required this.OnPressed,
+      required this.cameraFiles,
+      required this.pressEvent});
   final void Function()? OnPressed;
-  final String cameraFiles ;
+  final String cameraFiles;
+  final Function() pressEvent;
 
   @override
   Widget build(BuildContext context) {
@@ -710,23 +825,27 @@ class firstPageWidget extends StatelessWidget {
       children: [
         WaitingThumbNail(context: context),
         linearPercentIndicatorWithPadding(
-            context: context,
-            video_Compressing_Percentage_Filtered: "00"),
-        rowOfTextOfCompressedFilesNum(OnPressed: OnPressed, compressorIsRunning: false ,compressed: "",total_Files_Length: cameraFiles,),
+            context: context, video_Compressing_Percentage_Filtered: "00"),
+        rowOfTextOfCompressedFilesNum(
+          OnPressed: OnPressed,
+          compressed: "",
+          total_Files_Length: cameraFiles,
+          compressorIsStatus: '0',
+        ),
         linearPercentIndicatorWithPadding(
-            context: context,
-            video_Compressing_Percentage_Filtered: "00"),
+            context: context, video_Compressing_Percentage_Filtered: "00"),
+        StartCompressingButton(context: context, pressEvent: pressEvent)
       ],
     );
   }
 }
 
 class reloadButton extends StatelessWidget {
-   const reloadButton({super.key, this.OnPressed});
+  const reloadButton({super.key, this.OnPressed});
   final void Function()? OnPressed;
   @override
   Widget build(BuildContext context) {
-    return  IconButton(
+    return IconButton(
       onPressed: OnPressed,
       icon: const Icon(Icons.refresh),
     );
@@ -734,18 +853,22 @@ class reloadButton extends StatelessWidget {
 }
 
 class rowOfTextOfCompressedFilesNum extends StatelessWidget {
-  const rowOfTextOfCompressedFilesNum({super.key, this.OnPressed, required this.compressorIsRunning, required this.compressed, required this.total_Files_Length});
+  const rowOfTextOfCompressedFilesNum(
+      {super.key,
+      this.OnPressed,
+      required this.compressorIsStatus,
+      required this.compressed,
+      required this.total_Files_Length});
   final void Function()? OnPressed;
-  final bool compressorIsRunning;
+  final String compressorIsStatus;
   final String compressed;
   final String total_Files_Length;
   @override
   Widget build(BuildContext context) {
-    return  Row(
+    return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-
-        if (compressorIsRunning)
+        if (compressorIsStatus == "1")
           Text(
             '$compressed files compressed from $total_Files_Length',
             style: const TextStyle(
@@ -753,20 +876,38 @@ class rowOfTextOfCompressedFilesNum extends StatelessWidget {
                 fontSize: 15,
                 fontWeight: FontWeight.w400),
           )
-        else if (!compressorIsRunning)
-          Text(
-            'camera files: $total_Files_Length',
-            style: TextStyle(
-                color: Colors.black87,
-                fontSize: 15,
-                fontWeight: FontWeight.w400),
+        else if (compressorIsStatus == "0")
+          Row(
+            children: [
+              Text(
+                'camera files: $total_Files_Length',
+                style: TextStyle(
+                    color: Colors.black87,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400),
+              ),
+              reloadButton(OnPressed: OnPressed)
+            ],
+          )
+        else if (compressorIsStatus == "00")
+          Row(
+            children: [
+              Text(
+                '$compressed files compressed from $total_Files_Length',
+                style: const TextStyle(
+                    color: Colors.black87,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400),
+              ),
+              reloadButton(OnPressed: OnPressed)
+            ],
           ),
         const SizedBox(
           width: 20,
         ),
-          reloadButton(OnPressed: OnPressed)
       ],
-    );;
+    );
+    ;
   }
 }
 
@@ -787,7 +928,7 @@ class linearPercentIndicatorWithPadding extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 7,right: 7, left: 7, bottom: 7),
+      padding: const EdgeInsets.only(top: 7, right: 7, left: 7, bottom: 7),
       child: linearPercentIndicator(
           context: context,
           video_Compressing_Percentage_Filtered:
