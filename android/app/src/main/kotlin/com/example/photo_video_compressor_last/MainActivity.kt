@@ -39,7 +39,7 @@ class MainActivity: FlutterActivity() {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
                 call, result ->
             if(call.method=="createFolder") {
-                println("creating the folder ")
+//                println("creating the folder ")
                 createTheFolder();
 
 
@@ -60,11 +60,11 @@ class MainActivity: FlutterActivity() {
 
 
             else if (call.method =="moveScours"){
-                println("moveScours CODE SLDKFJSOI3445")
+//                println("moveScours CODE SLDKFJSOI3445")
                 val file_path = call.argument<String>("filepath")
                 val filePathAsString = file_path?.toString() ?: ""
-                println("this is the file path")
-                println(filePathAsString)
+//                println("this is the file path")
+//                println(filePathAsString)
                 moveFile(filePathAsString,"/storage/emulated/0/Compressed_media_RM")
             } else {
 
@@ -93,7 +93,7 @@ class MainActivity: FlutterActivity() {
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun createTheFolder(): Boolean {
 
-        println("inside the function")
+//        println("inside the function")
         val extStoragePath = Environment.getExternalStorageDirectory ().absolutePath
         // Create a folder name
         val folderName = "Compressed_media_RM"
@@ -101,7 +101,7 @@ class MainActivity: FlutterActivity() {
         val folder = File (extStoragePath, folderName)
 
         // Check if the folder exists and create it if not
-        println("i will check if the folder created or no")
+//        println("i will check if the folder created or no")
         if (!folder.exists ()) {
             val result = folder.mkdirs ()
             if (result) {
@@ -152,7 +152,7 @@ class MainActivity: FlutterActivity() {
                 // Check if the operation was successful or not
                 if (result) {
                     // The file was moved successfully
-                    println("The file was moved successfully to ${destinationFile.path}")
+//                    println("The file was moved successfully to ${destinationFile.path}")
                 } else {
                     // The file could not be moved
                     println("The file could not be moved")
@@ -169,7 +169,7 @@ class MainActivity: FlutterActivity() {
     }
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun getCameraData(): Map<String, String> {
-        println("inside the native fun get camera files")
+//        println("inside the native fun get camera files")
         val resultMap = mutableMapOf<String, String>()
         try {
             val dcimDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
@@ -179,12 +179,12 @@ class MainActivity: FlutterActivity() {
 
                 // Create a File object for the subfolder
                 val subfolder = File(dcimDirectory, subfolderName)
-                println(subfolder)
+//                println(subfolder)
 
                 if (subfolder.exists() && subfolder.isDirectory) {
                     val subfolderFiles = subfolder.listFiles()
-                    println("at 9238745_3458909")
-                    println(subfolderFiles)
+//                    println("at 9238745_3458909")
+//                    println(subfolderFiles)
                     subfolderFiles?.forEach { file ->
                         if (file.isFile) {
                             val path = file.absolutePath
@@ -203,8 +203,8 @@ class MainActivity: FlutterActivity() {
     }
 
     fun deleteSource(file_path :String ) {
-        println("in delete source ")
-        println(file_path)
+//        println("in delete source ")
+//        println(file_path)
 
         val file = File(file_path)
 

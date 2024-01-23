@@ -13,8 +13,16 @@ import 'dart:io';
 
 Future<void> moveFileInNative(filePath) async {
   const channel = MethodChannel('NativeChannel');
+  // print("STOPCODE SLDKFJSLD_4 i will move the file by the native channel");
 
-  Map data = await channel.invokeMethod(filePath);
+
+
+  Map<String, dynamic> arguments = {
+    "filepath": filePath, // Replace with your argument values
+  };
+
+  // Pass the arguments when invoking the method
+  Map data = await channel.invokeMethod("moveScours", arguments);
 }
 
 Future<void> deleteFileInNative(filePath) async {
@@ -39,20 +47,21 @@ Future<void> compressVideo(String filePath, bool deleteSource) async {
       deleteOrigin: false,
       includeAudio: true,
     );
+    // print("STOPCODE SLDKFJSLD_3 compressed and in ${info!.path}");
 
     print(info!.path);
 
     moveFileInNative(info.path);
-    if (kDebugMode) {
-      print(info.path);
-    } // This will print the path to the compressed video
+    // if (kDebugMode) {
+    //   print(info.path);
+    // } // This will print the path to the compressed video
     if (deleteSource) {
 
       deleteFileInNative(filePath);
     }
   } catch (e) {
     Fluttertoast.showToast(
-      msg: "Compression did not complete successfully",
+      msg: "error in compressing code 1489",
       toastLength: Toast.LENGTH_SHORT, // Duration of the toast
       gravity: ToastGravity.BOTTOM, // Location where the toast should appear
       timeInSecForIosWeb: 1, // Duration for iOS

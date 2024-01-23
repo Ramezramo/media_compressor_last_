@@ -32,11 +32,11 @@ Future<void> moveFileInNative(filePath) async {
 }
 
 Future<File?> ImageCompressAndGetFile(file, bool deleteSource) async {
-  print("$deleteSource at 987-98789");
+  // print("$deleteSource at 987-98789");
 
   double quality = 20;
   try {
-    print("in 230948_234");
+    // print("in 230948_234");
     var perquality;
     if (quality <= 50) {
       perquality = 20;
@@ -71,9 +71,9 @@ Future<File?> ImageCompressAndGetFile(file, bool deleteSource) async {
         if (await compressedFile.exists()) {
           moveFileInNative(compressedFile.path);
           if (deleteSource){
-            print("deleting 345_2352345");
-            print("id 578_67867");
-            print(file);
+            // print("deleting 345_2352345");
+            // print("id 578_67867");
+            // print(file);
             deleteFileInNative(file);
           }
 
@@ -91,10 +91,10 @@ Future<File?> ImageCompressAndGetFile(file, bool deleteSource) async {
 
   }
    catch (e) {
-    if (kDebugMode) {
-      print("hola");
-      print(e.toString());
-    }
+    // if (kDebugMode) {
+    //   // print("hola");
+    //   // print(e.toString());
+    // }
     // if (kDebugMode) {
     //
     // }

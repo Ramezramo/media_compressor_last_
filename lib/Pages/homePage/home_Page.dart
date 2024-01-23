@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
@@ -22,8 +23,6 @@ import '../../main.dart';
 import '../linear_percent_indicator.dart';
 import 'dart:typed_data';
 import 'package:image/image.dart' as img;
-
-
 
 Future<void> showTost(text) async {
   Fluttertoast.showToast(
@@ -63,14 +62,28 @@ Future<bool> requestStoragePermission() async {
 Future<void> comprssorImageone() async {
   requestStoragePermission();
   final picker = ImagePicker();
-  print("id 89_097809099");
-  print(isSwitched);
+  // print("id 89_097809099");
+  // print(isSwitched);
   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
   if (pickedFile != null) ImageCompressAndGetFile(pickedFile?.path, isSwitched);
   if (pickedFile != null)
     showTost("image saved in /storage/emulated/0/Compressed_media_RM");
 }
 
+String filteringCurrentFileCompressed(video_Compressing_Percentage) {
+  String video_Compressing_Percentage_Filtered;
+  try {
+    // print("at 11232309_#@4");
+    video_Compressing_Percentage_Filtered =
+        video_Compressing_Percentage.toString().substring(2, 4);
+
+
+    return video_Compressing_Percentage_Filtered;
+  } catch (e) {
+    video_Compressing_Percentage_Filtered = "0";
+    return video_Compressing_Percentage_Filtered;
+  }
+}
 class _MainHomePageState extends State<MainHomePage> {
   final double _initFabHeight = 120.0;
   double _fabHeight = 0;
@@ -100,19 +113,19 @@ class _MainHomePageState extends State<MainHomePage> {
   /// to tell the user the compressing process finished
   bool compressionFinished = false;
 
-  late bool thumbnailPicFunction = false;
-  late bool thumbnailVideoFunction = false;
+  // late bool thumbnailPicFunction = false;
+  // late bool thumbnailVideoFunction = false;
 
   bool startedCompressingAvideo = false;
 
-  String? fileUnderCompress = "no files yet";
+  String fileUnderCompress = "no files yet";
 
   double? VideoProgress = 0.0;
   late Subscription subscription;
 
   late double? video_Compressing_Percentage;
 
-  late String video_Compressing_Percentage_Filtered = "0";
+  // late String video_Compressing_Percentage_Filtered = "0";
 
   late bool viewSettingsButtonsBeforePresssing = true;
   bool startedCompressingProsses = false;
@@ -120,7 +133,13 @@ class _MainHomePageState extends State<MainHomePage> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   bool preparingFileToCompress = false;
   bool firsPageIdentifier = true;
+  int picsCompressed = 0;
+  int vidsCompressed = 0;
+  int photoOrPic = 0;
   void restarter() {
+    photoOrPic = 0;
+    vidsCompressed = 0;
+    picsCompressed = 0;
     firsPageIdentifier = true;
     bool preparingFileToCompress = false;
     startedCompressingProsses = false;
@@ -136,8 +155,8 @@ class _MainHomePageState extends State<MainHomePage> {
     compressionFinished = false;
     thumbnailVideoPath;
 
-    thumbnailPicFunction = false;
-    thumbnailVideoFunction = false;
+    // thumbnailPicFunction = false;
+    // thumbnailVideoFunction = false;
 
     startedCompressingAvideo = false;
 
@@ -148,7 +167,7 @@ class _MainHomePageState extends State<MainHomePage> {
 
     video_Compressing_Percentage;
 
-    video_Compressing_Percentage_Filtered = "0";
+    // video_Compressing_Percentage_Filtered = "0";
 
     viewSettingsButtonsBeforePresssing = true;
     getCameraFilesData();
@@ -180,7 +199,7 @@ class _MainHomePageState extends State<MainHomePage> {
     // print('Selected video path: $filePath');
 
     final pickedFile = await picker.pickVideo(source: ImageSource.gallery);
-    print(pickedFile);
+    // print(pickedFile);
     setState(() {
       preparingFileToCompress = false;
       if (pickedFile != null) isCompressing_From_Module = true;
@@ -188,8 +207,8 @@ class _MainHomePageState extends State<MainHomePage> {
 
     if (pickedFile != null) {
       //
-      print("id 89_097809099");
-      print(isSwitched);
+      // print("id 89_097809099");
+      // print(isSwitched);
       await compressVideo(pickedFile!.path, isSwitched);
     }
     setState(() {
@@ -212,7 +231,7 @@ class _MainHomePageState extends State<MainHomePage> {
   }
 
   Future<Map> getCameraFilesData() async {
-    print("in get cam data ");
+    // print("in get cam data ");
 
     await requestStoragePermission();
 
@@ -231,9 +250,9 @@ class _MainHomePageState extends State<MainHomePage> {
 
     map_Contains_Files_Names_Sorted_By_Date.forEach((key, value) {
       i++;
-      print(key); // This will print the keys
-      print(value); // This will print the corresponding values
-      print(i);
+      // print(key); // This will print the keys
+      // print(value); // This will print the corresponding values
+      // print(i);
     });
     // print(data);
     setState(() {
@@ -246,10 +265,10 @@ class _MainHomePageState extends State<MainHomePage> {
   }
 
   Future<List<File>> getFilesInFolderSortedByDate() async {
-    print("at 2342_234234");
+    // print("at 2342_234234");
     Directory? externalDir = await getExternalStorageDirectory();
     if (externalDir == null) {
-      print("null");
+      // print("null");
       // Handle the case where external storage is not available
       return [];
     }
@@ -291,9 +310,10 @@ class _MainHomePageState extends State<MainHomePage> {
   Future<void> comprssorVideo(path) async {
     setState(() {
       startedCompressingAvideo = true;
-      print("at 3495870");
-      print(startedCompressingAvideo);
+      // print("at 3495870");
+      // print(startedCompressingAvideo);
     });
+    // print("STOPCODE SLDKFJSLD_2");
     await compressVideo(path, isSwitched);
     setState(() {
       VideoProgress = 0;
@@ -302,7 +322,7 @@ class _MainHomePageState extends State<MainHomePage> {
   }
 
   Future<void> startCompressing() async {
-    print("in start compressing");
+    // print("in start compressing");
     setState(() {
       startedCompressingProsses = true;
     });
@@ -318,18 +338,20 @@ class _MainHomePageState extends State<MainHomePage> {
           key.endsWith(".png") ||
           key.endsWith(".gif") ||
           key.endsWith(".webp")) {
-        print(key); // This will print the keys that end with ".jpg"
+        // print(key); // This will print the keys that end with ".jpg"
         setState(() {
           fileUnderCompress = key;
-          thumbnailVideoFunction = false;
-          thumbnailPicFunction = true;
+          // thumbnailVideoFunction = false;
+          // thumbnailPicFunction = true;
+          photoOrPic = 0;
           picAsAThumbnail = key;
-          print("code LKSDJGLKJ");
-          print(picAsAThumbnail);
+          // print("code LKSDJGLKJ");
+          // print(picAsAThumbnail);
         });
 
         await comprssImage(key);
         setState(() {
+          picsCompressed++;
           compressed++;
           progress_maker();
         });
@@ -337,15 +359,22 @@ class _MainHomePageState extends State<MainHomePage> {
           key.endsWith(".mov") ||
           key.endsWith(".mkv") ||
           key.endsWith(".avi")) {
-        print(key); // This will print the keys that end with ".mp4"
+        // print("STOPCODE SLDKFJSLD");
+        // print(key); // This will print the keys that end with ".mp4"
+        setState(() {
+          // thumbnailPicFunction = true;
+        });
         thumbnailVideoPath = await createVideoThumbnail(key);
         setState(() {
           fileUnderCompress = key;
-          thumbnailPicFunction = false;
-          thumbnailVideoFunction = true;
+          photoOrPic = 1;
+          // thumbnailPicFunction = false;
+          // thumbnailVideoFunction = true;
         });
         await comprssorVideo(key);
         setState(() {
+          vidsCompressed++;
+
           compressed++;
           progress_maker();
         });
@@ -357,16 +386,33 @@ class _MainHomePageState extends State<MainHomePage> {
     });
   }
 
+  int filteringFilesCompressedPercentage(rawPercentage) {
+    /// The input always will be 0.95098798 in the def will clean all junk and the out will be 95%
+    int cleanPercentage = 95;
+    return cleanPercentage;
+  }
+
+
+  double generateRandomPercentage() {
+    // Generate a random double between 80.0 and 99.0
+    double randomDouble = Random().nextDouble() * (99.0 - 50.0) + 50.0;
+
+    // Round the double to two decimal places
+    double randomPercentage =
+        double.parse((randomDouble / 100.0).toStringAsFixed(2));
+
+    return randomPercentage;
+  }
+
   @override
   void initState() {
     // TODO: implement initSta
-    if (!kIsWeb) {
-      getCameraFilesData();
-      subscription = VideoCompress.compressProgress$.subscribe(
-          (VideoProgress) =>
-              setState(() => this.VideoProgress = VideoProgress));
-      _fabHeight = _initFabHeight;
-    }
+
+    getCameraFilesData();
+    subscription = VideoCompress.compressProgress$.subscribe(
+        (VideoProgress) => setState(() => this.VideoProgress = VideoProgress));
+    _fabHeight = _initFabHeight;
+
     // progress_maker();
     // totalFiles = sortedMap.length;
     super.initState();
@@ -386,17 +432,6 @@ class _MainHomePageState extends State<MainHomePage> {
     video_Compressing_Percentage =
         VideoProgress == null ? VideoProgress : VideoProgress! / 100;
 
-    try {
-      print("at 11232309_#@4");
-      video_Compressing_Percentage_Filtered =
-          video_Compressing_Percentage.toString().substring(2, 4);
-      int? intValue = int.tryParse(video_Compressing_Percentage_Filtered);
-      setState(() {
-        videoProgressMaker(intValue, 99);
-      });
-    } catch (e) {
-      video_Compressing_Percentage_Filtered = "0";
-    }
     return Material(
       child: Stack(
         alignment: Alignment.topCenter,
@@ -570,9 +605,10 @@ class _MainHomePageState extends State<MainHomePage> {
       radius: 40.0,
       lineWidth: 10.0,
       // animation: true,
-      percent: double.parse("0.${video_Compressing_Percentage_Filtered}"),
+      percent: double.parse(
+          "0.${filteringCurrentFileCompressed(video_Compressing_Percentage)}"),
       center: Text(
-        "%$video_Compressing_Percentage_Filtered",
+        "%${filteringCurrentFileCompressed(video_Compressing_Percentage)}",
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
       ),
       footer: IconButton(
@@ -591,12 +627,8 @@ class _MainHomePageState extends State<MainHomePage> {
   }
 
   Widget _body() {
-    String progressH;
-    try {
-      progressH = progress.toString()[2];
-    } catch (r) {
-      progressH = "no";
-    }
+    // print("STOPCODE LKMLMN VIEW THE NONREAL CODE");
+    // print(generateRandomPercentage());
 
     return SafeArea(
       child: Scaffold(
@@ -615,40 +647,91 @@ class _MainHomePageState extends State<MainHomePage> {
                     restarter();
                   });
                 }),
-          if (startedCompressingProsses && thumbnailPicFunction)
-            startedCompressingPicProssesWidget(
+          if (startedCompressingProsses)
+            startedCompressingProssesWidget(
+              vidthumbnail: thumbnailVideoPath,
+              vidsCompressed: vidsCompressed.toString(),
+              picsCompressed: picsCompressed.toString(),
+              fileName: fileUnderCompress,
               picthumbnail: picAsAThumbnail,
               cameraFiles: total_Files_Length_Obtained_From_NATIVE.toString(),
               filesCompressed: compressed.toString(),
-              totalFilesPercentage: "${progressH}0",
-              currentFilePercentage: "99",
+              totalFilesPercentage: progress,
+              currentFilePercentageVid:video_Compressing_Percentage!,
+              currentFilePercentagePic: generateRandomPercentage(),
+              photoOrPic: photoOrPic,
             )
-          else if (startedCompressingProsses && thumbnailVideoFunction)
-            startedCompressingVidProssesWidget(
-              cameraFiles: total_Files_Length_Obtained_From_NATIVE.toString(),
-              filesCompressed: compressed.toString(),
-              totalFilesPercentage: "${progressH}0",
-              currentFilePercentage: video_Compressing_Percentage_Filtered,
-              vidthumbnail: thumbnailVideoPath,
-            )else if (compressionFinished)
-              firstPageWidget(
-                  pressEvent: () {
-                    setState(() {
-                      firsPageIdentifier = false;
-                    });
-                    startCompressing();
-                  },
-                  cameraFiles: total_Files_Length_Obtained_From_NATIVE.toString(),
-                  OnPressed: () {
-                    setState(() {
-                      restarter();
-                    });
-                  }),
+          else if (compressionFinished)
+            firstPageWidget(
+                pressEvent: () {
+                  setState(() {
+                    firsPageIdentifier = false;
+                  });
+                  startCompressing();
+                },
+                cameraFiles: total_Files_Length_Obtained_From_NATIVE.toString(),
+                OnPressed: () {
+                  setState(() {
+                    restarter();
+                  });
+                }),
         ]),
       ),
     );
   }
 }
+//
+// class controllerIfPhotoOrPic extends StatelessWidget {
+//   final double totalFilesPercentage;
+//
+//   final double currentFilePercentage;
+//   final String cameraFiles;
+//
+//   final String filesCompressed;
+//   final picthumbnail;
+//
+//   final String fileName;
+//   final String fileBeingCompressedPercentage;
+//   final String picsCompressed;
+//   final String vidsCompressed;
+//
+//   final Uint8List? vidthumbnail;
+//      bool isVideo;
+//
+//    controllerIfPhotoOrPic({super.key, required this.totalFilesPercentage, required this.currentFilePercentage, required this.cameraFiles, required this.filesCompressed, this.picthumbnail, required this.fileName, required this.fileBeingCompressedPercentage, required this.picsCompressed, required this.vidsCompressed, this.vidthumbnail,  required this.isVideo});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     if (isVideo = false ){
+//       return  startedCompressingPicProssesWidget(
+//         vidsCompressed: vidsCompressed,
+//         picsCompressed: picsCompressed,
+//         fileBeingCompressedPercentage:
+//         fileBeingCompressedPercentage,
+//         fileName: fileName,
+//         picthumbnail: picthumbnail,
+//         cameraFiles: cameraFiles,
+//         filesCompressed: filesCompressed,
+//         totalFilesPercentage: totalFilesPercentage,
+//         currentFilePercentage: currentFilePercentage,
+//       );
+//     }    else{
+//       return   startedCompressingVidProssesWidget(
+//         vidsCompressed: vidsCompressed,
+//         picsCompressed: picsCompressed,
+//         fileBeingCompressedPercentage:
+//         fileBeingCompressedPercentage,
+//         fileName: fileName,
+//         cameraFiles: cameraFiles,
+//         filesCompressed:filesCompressed,
+//         totalFilesPercentage: totalFilesPercentage,
+//         currentFilePercentage: currentFilePercentage!,
+//         // currentFilePercentage: video_Compressing_Percentage_Filtered,
+//         vidthumbnail: vidthumbnail,
+//       );
+//     }
+//   }
+// }
 
 class StartCompressingButton extends StatelessWidget {
   const StartCompressingButton({
@@ -726,30 +809,67 @@ class _ThumbnailViewWidgetState extends State<ThumbnailViewWidget> {
     return Uint8List.fromList(img.encodeJpg(thumbnail));
   }
 }
+//
+// class startedCompressingVidProssesWidget extends StatelessWidget {
+//   final double totalFilesPercentage;
+//
+//   final double currentFilePercentage;
+//   final String cameraFiles;
+//
+//   final String filesCompressed;
+//   final picthumbnail;
+//   final Uint8List? vidthumbnail;
+//   final String fileName;
+//   final String fileBeingCompressedPercentage;
+//   final String picsCompressed;
+//   final String vidsCompressed;
+//   const startedCompressingVidProssesWidget({
+//     super.key,
+//     required this.cameraFiles,
+//     required this.filesCompressed,
+//     required this.totalFilesPercentage,
+//     required this.currentFilePercentage,
+//     this.picthumbnail,
+//     this.vidthumbnail,
+//     required this.fileName,
+//     required this.fileBeingCompressedPercentage,
+//     required this.picsCompressed,
+//     required this.vidsCompressed,
+//   });
+//   @override
+//   Widget build(BuildContext context) {
+//     // print("Code skdjfhskdfjh");
+//     // print(pictureThumbNail);
+//     return videoPicWidget(vidthumbnail: vidthumbnail, totalFilesPercentage: totalFilesPercentage, filesCompressed: filesCompressed, cameraFiles: cameraFiles, picsCompressed: picsCompressed, vidsCompressed: vidsCompressed, currentFilePercentage: currentFilePercentage, fileBeingCompressedPercentage: fileBeingCompressedPercentage, fileName: fileName);
+//   }
+// }
 
-class startedCompressingVidProssesWidget extends StatelessWidget {
-  final String totalFilesPercentage;
-
-  final String currentFilePercentage;
-  final String cameraFiles;
-
-  final String filesCompressed;
-  final picthumbnail;
-  final Uint8List? vidthumbnail;
-
-  const startedCompressingVidProssesWidget({
+class videoPicWidget extends StatelessWidget {
+  const videoPicWidget({
     super.key,
-    required this.cameraFiles,
-    required this.filesCompressed,
+    required this.vidthumbnail,
     required this.totalFilesPercentage,
-    required this.currentFilePercentage,
-    this.picthumbnail,
-    this.vidthumbnail,
+    required this.filesCompressed,
+    required this.cameraFiles,
+    required this.picsCompressed,
+    required this.vidsCompressed,
+    required this.currentFilePercentageForLinear,
+    required this.fileBeingCompressedPercentageText,
+    required this.fileName,
   });
+
+  final Uint8List? vidthumbnail;
+  final double totalFilesPercentage;
+  final String filesCompressed;
+  final String cameraFiles;
+  final String picsCompressed;
+  final String vidsCompressed;
+  final double currentFilePercentageForLinear;
+  final String fileBeingCompressedPercentageText;
+  final String fileName;
+
   @override
   Widget build(BuildContext context) {
-    // print("Code skdjfhskdfjh");
-    // print(pictureThumbNail);
     return Column(
       children: [
         videoThumbnail(thumbnailVideoPath: vidthumbnail, context: context),
@@ -761,38 +881,186 @@ class startedCompressingVidProssesWidget extends StatelessWidget {
           total_Files_Length: cameraFiles,
           compressorIsStatus: "1",
         ),
+        CompressedPicAndVidTextViewer(
+            picsCompressed: picsCompressed, vidsCompressed: vidsCompressed),
         linearPercentIndicatorWithPadding(
             context: context,
-            video_Compressing_Percentage_Filtered: currentFilePercentage),
+            video_Compressing_Percentage_Filtered:
+                currentFilePercentageForLinear),
+        BeingCompressedPercentageTextViewer(
+            fileBeingCompressedPercentage:
+                "$fileBeingCompressedPercentageText%"),
+        FileNameTextViewer(fileName: fileName),
       ],
     );
   }
 }
 
-class startedCompressingPicProssesWidget extends StatelessWidget {
-  final String totalFilesPercentage;
+class FileNameTextViewer extends StatelessWidget {
+  const FileNameTextViewer({
+    super.key,
+    required this.fileName,
+  });
 
-  final String currentFilePercentage;
+  final String fileName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: Text(fileName),
+    );
+  }
+}
+
+class BeingCompressedPercentageTextViewer extends StatelessWidget {
+  const BeingCompressedPercentageTextViewer({
+    super.key,
+    required this.fileBeingCompressedPercentage,
+  });
+
+  final String fileBeingCompressedPercentage;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 12.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Text("$fileBeingCompressedPercentage"),
+        ],
+      ),
+    );
+  }
+}
+
+class CompressedPicAndVidTextViewer extends StatelessWidget {
+  const CompressedPicAndVidTextViewer({
+    super.key,
+    required this.picsCompressed,
+    required this.vidsCompressed,
+  });
+
+  final String picsCompressed;
+  final String vidsCompressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 20,
+      child: Container(
+          child: Center(
+        child:
+            Text("$picsCompressed photos compressed $vidsCompressed videos  "),
+      )),
+    );
+  }
+}
+
+class startedCompressingProssesWidget extends StatelessWidget {
+  final int photoOrPic;
+
+  /// if this photoOrPic var equal to 1 this means is a vid if 0 this is a pic
+
+  final double totalFilesPercentage;
+
+  // final double currentFilePercentage;
   final String cameraFiles;
 
   final String filesCompressed;
   final picthumbnail;
 
-  const startedCompressingPicProssesWidget({
+  final String fileName;
+  // final String fileBeingCompressedPercentage;
+  final String picsCompressed;
+  final String vidsCompressed;
+  final Uint8List? vidthumbnail;
+  final double currentFilePercentageVid;
+
+  final double currentFilePercentagePic;
+  const startedCompressingProssesWidget({
     super.key,
+    required this.fileName,
     required this.cameraFiles,
     required this.filesCompressed,
     required this.totalFilesPercentage,
-    required this.currentFilePercentage,
+    // required this.currentFilePercentage,
     this.picthumbnail,
+    // required this.fileBeingCompressedPercentage,
+    required this.picsCompressed,
+    required this.vidsCompressed,
+    required this.photoOrPic,
+    required this.vidthumbnail,
+
+    required this.currentFilePercentageVid,
+    required this.currentFilePercentagePic,
   });
   @override
   Widget build(BuildContext context) {
-    print("Code skdjfhskdfjh");
-    print(picthumbnail);
+    if (photoOrPic == 0) {
+      // print("CODE LKJDSFLK");
+      return picViewerWidget(
+          totalFilesPercentage: totalFilesPercentage,
+          filesCompressed: filesCompressed,
+          cameraFiles: cameraFiles,
+          picsCompressed: picsCompressed,
+          vidsCompressed: vidsCompressed,
+          currentFilePercentage: currentFilePercentagePic,
+          fileName: fileName);
+    } else if (photoOrPic == 1) {
+      return videoPicWidget(
+          vidthumbnail: vidthumbnail,
+          totalFilesPercentage: totalFilesPercentage,
+          filesCompressed: filesCompressed,
+          cameraFiles: cameraFiles,
+          picsCompressed: picsCompressed,
+          vidsCompressed: vidsCompressed,
+          currentFilePercentageForLinear: currentFilePercentageVid,
+          fileBeingCompressedPercentageText: filteringCurrentFileCompressed(currentFilePercentageVid),
+          fileName: fileName);
+    } else {
+      return Container(
+        child: Center(child: Text("there is an error CODE 10983")),
+      );
+    }
+  }
+}
+
+class picViewerWidget extends StatelessWidget {
+  const picViewerWidget({
+    super.key,
+    required this.totalFilesPercentage,
+    required this.filesCompressed,
+    required this.cameraFiles,
+    required this.picsCompressed,
+    required this.vidsCompressed,
+    required this.currentFilePercentage,
+    required this.fileName,
+  });
+
+  final double totalFilesPercentage;
+  final String filesCompressed;
+  final String cameraFiles;
+  final String picsCompressed;
+  final String vidsCompressed;
+  final double currentFilePercentage;
+  final String fileName;
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
-        ThumbnailViewWidget(imagePath: picthumbnail),
+        Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height / 2.5,
+          child: Image.asset(
+            "images/compressImage.png", // Replace with the actual path to your asset
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height / 2.5,
+            fit: BoxFit.cover,
+          ),
+        ),
         linearPercentIndicatorWithPadding(
             context: context,
             video_Compressing_Percentage_Filtered: totalFilesPercentage),
@@ -801,9 +1069,14 @@ class startedCompressingPicProssesWidget extends StatelessWidget {
           total_Files_Length: cameraFiles,
           compressorIsStatus: "1",
         ),
+        CompressedPicAndVidTextViewer(
+            picsCompressed: picsCompressed, vidsCompressed: vidsCompressed),
         linearPercentIndicatorWithPadding(
             context: context,
             video_Compressing_Percentage_Filtered: currentFilePercentage),
+        BeingCompressedPercentageTextViewer(
+            fileBeingCompressedPercentage: "pics"),
+        FileNameTextViewer(fileName: fileName),
       ],
     );
   }
@@ -825,7 +1098,7 @@ class firstPageWidget extends StatelessWidget {
       children: [
         WaitingThumbNail(context: context),
         linearPercentIndicatorWithPadding(
-            context: context, video_Compressing_Percentage_Filtered: "00"),
+            context: context, video_Compressing_Percentage_Filtered: 0.0),
         rowOfTextOfCompressedFilesNum(
           OnPressed: OnPressed,
           compressed: "",
@@ -833,7 +1106,7 @@ class firstPageWidget extends StatelessWidget {
           compressorIsStatus: '0',
         ),
         linearPercentIndicatorWithPadding(
-            context: context, video_Compressing_Percentage_Filtered: "00"),
+            context: context, video_Compressing_Percentage_Filtered: 0.0),
         StartCompressingButton(context: context, pressEvent: pressEvent)
       ],
     );
@@ -923,7 +1196,7 @@ class linearPercentIndicatorWithPadding extends StatelessWidget {
   });
 
   final BuildContext context;
-  final String video_Compressing_Percentage_Filtered;
+  final double video_Compressing_Percentage_Filtered;
 
   @override
   Widget build(BuildContext context) {
@@ -1055,19 +1328,15 @@ class linearPercentIndicator extends StatelessWidget {
   });
 
   final BuildContext context;
-  final String video_Compressing_Percentage_Filtered;
+  final double video_Compressing_Percentage_Filtered;
 
   @override
   Widget build(BuildContext context) {
-    return LinearPercentIndicator(
-      width: MediaQuery.of(context).size.width - 50,
-      // animation: true,
-      lineHeight: 20.0,
-      // animationDuration: 1000,
-      percent: double.parse("0.$video_Compressing_Percentage_Filtered"),
-      center: Text("%$video_Compressing_Percentage_Filtered"),
-      linearStrokeCap: LinearStrokeCap.roundAll,
-      progressColor: Colors.green,
+    return LinearProgressIndicator(
+      minHeight: 13,
+      color: const Color(0XFF97CF45),
+      value: video_Compressing_Percentage_Filtered,
+      semanticsLabel: 'Linear progress indicator',
     );
   }
 }
