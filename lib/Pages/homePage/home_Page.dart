@@ -136,7 +136,13 @@ class _MainHomePageState extends State<MainHomePage> {
   int picsCompressed = 0;
   int vidsCompressed = 0;
   int photoOrPic = 0;
+
+  List photoesPrepared = [];
+  List videosPrepared = [];
   void restarter() {
+    photoesPrepared = [];
+    videosPrepared = [];
+
     photoOrPic = 0;
     vidsCompressed = 0;
     picsCompressed = 0;
@@ -321,70 +327,81 @@ class _MainHomePageState extends State<MainHomePage> {
     });
   }
 
-  Future<void> startCompressing() async {
-    // print("in start compressing");
-    setState(() {
-      startedCompressingProsses = true;
-    });
+  Future<void> startPreparingFilesAndClassifyThem() async {
+    print("CODE SDFJLKJSDF");
+    // setState(() {
+    //   startedCompressingProsses = true;
+    // });
+
+
     for (final entry in map_Contains_Files_Names_Sorted_By_Date.entries) {
       final key = entry.key;
-      final value = entry.value;
-      setState(() {
-        viewSettingsButtonsBeforePresssing = false;
-      });
-
       if (key.endsWith(".jpg") ||
           key.endsWith(".jpeg") ||
           key.endsWith(".png") ||
           key.endsWith(".gif") ||
           key.endsWith(".webp")) {
-        // print(key); // This will print the keys that end with ".jpg"
-        setState(() {
-          fileUnderCompress = key;
-          // thumbnailVideoFunction = false;
-          // thumbnailPicFunction = true;
-          photoOrPic = 0;
-          picAsAThumbnail = key;
-          // print("code LKSDJGLKJ");
-          // print(picAsAThumbnail);
-        });
+        // print("this is the length");
+        // print(photoesPrepared.length);
+
+        photoesPrepared.add(key);
+
+        // // print(key); // This will print the keys that end with ".jpg"
+        // setState(() {
+        //   fileUnderCompress = key;
+        //   // thumbnailVideoFunction = false;
+        //   // thumbnailPicFunction = true;
+        //   photoOrPic = 0;
+        //   picAsAThumbnail = key;
+        //   // print("code LKSDJGLKJ");
+        //   // print(picAsAThumbnail);
+        // });
 
 
-        await comprssImage(key);
-        setState(() {
-          picsCompressed++;
-          compressed++;
-          progress_maker();
-        });
+        // await comprssImage(key);
+        // setState(() {
+        //   picsCompressed++;
+        //   compressed++;
+        //   progress_maker();
+        // });
       } else if (key.endsWith(".mp4") ||
           key.endsWith(".mov") ||
           key.endsWith(".mkv") ||
           key.endsWith(".avi")) {
+        // print(videosPrepared.length);
+        videosPrepared.add(key);
+
+
+
+
         // print("STOPCODE SLDKFJSLD");
         // print(key); // This will print the keys that end with ".mp4"
-        setState(() {
-          // thumbnailPicFunction = true;
-        });
-        thumbnailVideoPath = await createVideoThumbnail(key);
-        setState(() {
-          fileUnderCompress = key;
-          photoOrPic = 1;
-          // thumbnailPicFunction = false;
-          // thumbnailVideoFunction = true;
-        });
-        await comprssorVideo(key);
-        setState(() {
-          vidsCompressed++;
-
-          compressed++;
-          progress_maker();
-        });
+        // setState(() {
+        //   // thumbnailPicFunction = true;
+        // });
+        // thumbnailVideoPath = await createVideoThumbnail(key);
+        // setState(() {
+        //   fileUnderCompress = key;
+        //   photoOrPic = 1;
+        //   // thumbnailPicFunction = false;
+        //   // thumbnailVideoFunction = true;
+        // });
+        // await comprssorVideo(key);
+        // setState(() {
+        //   vidsCompressed++;
+        //
+        //   compressed++;
+        //   progress_maker();
+        // });
       }
     }
-    showTost("Compression complete successfully");
     setState(() {
-      restarter();
+
     });
+    // showTost("Compression complete successfully");
+    // setState(() {
+    //   restarter();
+    // });
   }
 
   int filteringFilesCompressedPercentage(rawPercentage) {
@@ -413,6 +430,7 @@ class _MainHomePageState extends State<MainHomePage> {
     subscription = VideoCompress.compressProgress$.subscribe(
         (VideoProgress) => setState(() => this.VideoProgress = VideoProgress));
     _fabHeight = _initFabHeight;
+    startPreparingFilesAndClassifyThem();
 
     // progress_maker();
     // totalFiles = sortedMap.length;
@@ -628,27 +646,34 @@ class _MainHomePageState extends State<MainHomePage> {
   }
 
   Widget _body() {
-    // print("STOPCODE LKMLMN VIEW THE NONREAL CODE");
-    // print(generateRandomPercentage());
+    print("STOPCODE LKMLMN VIEW THE NONREAL CODE");
 
+    print(photoesPrepared.length.toString());
+    // print(generateRandomPercentage());
+    startPreparingFilesAndClassifyThem();
     return SafeArea(
       child: Scaffold(
         body: Column(children: [
           if (firsPageIdentifier)
             firstPageWidget(
+                photoesPrepared: photoesPrepared.length.toString(),
+                vidsPrepared: videosPrepared.length.toString(),
                 pressEvent: () {
                   setState(() {
                     firsPageIdentifier = false;
                   });
-                  startCompressing();
+                  startPreparingFilesAndClassifyThem();
                 },
                 cameraFiles: total_Files_Length_Obtained_From_NATIVE.toString(),
                 OnPressed: () {
                   setState(() {
+                    startPreparingFilesAndClassifyThem();
                     restarter();
                   });
                 }),
-          if (startedCompressingProsses)
+          if (startedCompressingProsses && photoOrPic == 0 )
+            Text(picsCompressed.toString())else if (startedCompressingProsses && photoOrPic == 1 )
+
             startedCompressingProssesWidget(
               vidthumbnail: thumbnailVideoPath,
               vidsCompressed: vidsCompressed.toString(),
@@ -664,15 +689,18 @@ class _MainHomePageState extends State<MainHomePage> {
             )
           else if (compressionFinished)
             firstPageWidget(
+              photoesPrepared: photoesPrepared.length.toString(),
+                vidsPrepared: photoesPrepared.length.toString(),
                 pressEvent: () {
                   setState(() {
                     firsPageIdentifier = false;
                   });
-                  startCompressing();
+                  startPreparingFilesAndClassifyThem();
                 },
                 cameraFiles: total_Files_Length_Obtained_From_NATIVE.toString(),
                 OnPressed: () {
                   setState(() {
+                    startPreparingFilesAndClassifyThem();
                     restarter();
                   });
                 }),
@@ -1084,10 +1112,16 @@ class picViewerWidget extends StatelessWidget {
 }
 
 class firstPageWidget extends StatelessWidget {
+  final String photoesPrepared;
+
+  final String  vidsPrepared;
+
   const firstPageWidget(
       {super.key,
       required this.OnPressed,
       required this.cameraFiles,
+        required this.photoesPrepared,
+        required this.vidsPrepared,
       required this.pressEvent});
   final void Function()? OnPressed;
   final String cameraFiles;
@@ -1101,6 +1135,8 @@ class firstPageWidget extends StatelessWidget {
         linearPercentIndicatorWithPadding(
             context: context, video_Compressing_Percentage_Filtered: 0.0),
         rowOfTextOfCompressedFilesNum(
+          picsPrepared: photoesPrepared,
+          vidsPrepared:vidsPrepared ,
           OnPressed: OnPressed,
           compressed: "",
           total_Files_Length: cameraFiles,
@@ -1127,12 +1163,16 @@ class reloadButton extends StatelessWidget {
 }
 
 class rowOfTextOfCompressedFilesNum extends StatelessWidget {
+  final String? vidsPrepared;
+
+  final String? picsPrepared;
+
   const rowOfTextOfCompressedFilesNum(
       {super.key,
       this.OnPressed,
       required this.compressorIsStatus,
       required this.compressed,
-      required this.total_Files_Length});
+      required this.total_Files_Length,this.vidsPrepared,this.picsPrepared});
   final void Function()? OnPressed;
   final String compressorIsStatus;
   final String compressed;
@@ -1154,7 +1194,7 @@ class rowOfTextOfCompressedFilesNum extends StatelessWidget {
           Row(
             children: [
               Text(
-                'camera files: $total_Files_Length',
+                'camera files: $total_Files_Length videos: $vidsPrepared pic: $picsPrepared' ,
                 style: TextStyle(
                     color: Colors.black87,
                     fontSize: 15,
