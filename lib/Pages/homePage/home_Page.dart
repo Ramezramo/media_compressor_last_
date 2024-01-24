@@ -349,6 +349,7 @@ class _MainHomePageState extends State<MainHomePage> {
           // print(picAsAThumbnail);
         });
 
+
         await comprssImage(key);
         setState(() {
           picsCompressed++;
