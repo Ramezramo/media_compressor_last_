@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
 
-// void main() {
-//   runApp(MyApp());
-// }
-//
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       home: MyHomePage(),
-//     );
-//   }
-// }
 
 class AnimatedCounterPage extends StatefulWidget {
   final int countTo;
   final double fontSize;
-  const AnimatedCounterPage({super.key,required this.countTo, required this.fontSize});
+  final VoidCallback? theEnimationEnded;
+
+  const AnimatedCounterPage({
+    Key? key,
+    required this.countTo,
+    required this.fontSize,
+    this.theEnimationEnded,
+  }) : super(key: key);
+
   @override
   _AnimatedCounterPageState createState() => _AnimatedCounterPageState();
 }
@@ -35,8 +31,13 @@ class _AnimatedCounterPageState extends State<AnimatedCounterPage> with SingleTi
     );
 
     _animation = IntTween(begin: 1, end: widget.countTo).animate(_controller);
-    print("CODE LSKDFJLK");
-    print(widget.countTo);
+
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        // Animation has completed, invoke the callback
+        widget.theEnimationEnded?.call();
+      }
+    });
 
     _controller.forward();
   }
@@ -44,15 +45,16 @@ class _AnimatedCounterPageState extends State<AnimatedCounterPage> with SingleTi
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: AnimatedBuilder(
-          animation: _animation,
-          builder: (context, child) {
-            return Text(
-              _animation.value.toString(),
-              style: TextStyle(fontSize: widget.fontSize),
-            );
-          },
-        ));
+      child: AnimatedBuilder(
+        animation: _animation,
+        builder: (context, child) {
+          return Text(
+            _animation.value.toString(),
+            style: TextStyle(fontSize: widget.fontSize),
+          );
+        },
+      ),
+    );
   }
 
   @override
