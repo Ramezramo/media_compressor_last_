@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:photo_video_compressor_last/Pages/homePage/counterFromChatGpt.dart';
 import 'package:photo_video_compressor_last/Pages/src/panel.dart';
 
 import 'package:flutter/services.dart';
@@ -77,13 +78,13 @@ String filteringCurrentFileCompressed(video_Compressing_Percentage) {
     video_Compressing_Percentage_Filtered =
         video_Compressing_Percentage.toString().substring(2, 4);
 
-
     return video_Compressing_Percentage_Filtered;
   } catch (e) {
     video_Compressing_Percentage_Filtered = "0";
     return video_Compressing_Percentage_Filtered;
   }
 }
+
 class _MainHomePageState extends State<MainHomePage> {
   final double _initFabHeight = 120.0;
   double _fabHeight = 0;
@@ -226,7 +227,7 @@ class _MainHomePageState extends State<MainHomePage> {
   }
 
   void progress_maker() async {
-    progress = compressed / total_Files_Length_Obtained_From_NATIVE;
+    progress = compressed / videosPrepared.length;
     setState(() {});
   }
 
@@ -266,6 +267,7 @@ class _MainHomePageState extends State<MainHomePage> {
     });
     total_Files_Length_Obtained_From_NATIVE =
         map_Contains_Files_Names_Sorted_By_Date.length;
+    startPreparingFilesAndClassifyThem();
 
     return map_Contains_Files_Names_Sorted_By_Date;
   }
@@ -333,7 +335,6 @@ class _MainHomePageState extends State<MainHomePage> {
     //   startedCompressingProsses = true;
     // });
 
-
     for (final entry in map_Contains_Files_Names_Sorted_By_Date.entries) {
       final key = entry.key;
       if (key.endsWith(".jpg") ||
@@ -357,7 +358,6 @@ class _MainHomePageState extends State<MainHomePage> {
         //   // print(picAsAThumbnail);
         // });
 
-
         // await comprssImage(key);
         // setState(() {
         //   picsCompressed++;
@@ -370,9 +370,6 @@ class _MainHomePageState extends State<MainHomePage> {
           key.endsWith(".avi")) {
         // print(videosPrepared.length);
         videosPrepared.add(key);
-
-
-
 
         // print("STOPCODE SLDKFJSLD");
         // print(key); // This will print the keys that end with ".mp4"
@@ -395,9 +392,7 @@ class _MainHomePageState extends State<MainHomePage> {
         // });
       }
     }
-    setState(() {
-
-    });
+    // setState(() {});
     // showTost("Compression complete successfully");
     // setState(() {
     //   restarter();
@@ -410,7 +405,6 @@ class _MainHomePageState extends State<MainHomePage> {
     return cleanPercentage;
   }
 
-
   double generateRandomPercentage() {
     // Generate a random double between 80.0 and 99.0
     double randomDouble = Random().nextDouble() * (99.0 - 50.0) + 50.0;
@@ -422,6 +416,52 @@ class _MainHomePageState extends State<MainHomePage> {
     return randomPercentage;
   }
 
+
+  Future<void> CompressThePreparedPics() async{
+    for (final entry in photoesPrepared) {
+      print("compressing photos");
+      await comprssImage(entry);
+    }
+  }
+
+  Future<void> CompressThePreparedVids() async{
+    for (final entry in videosPrepared) {
+      print("compressing vids");
+
+      thumbnailVideoPath = await createVideoThumbnail(entry);
+      setState(() {
+        fileUnderCompress = entry;
+        photoOrPic = 1;
+      });
+
+
+      await comprssorVideo(entry);
+
+
+      setState(() {
+        vidsCompressed++;
+
+        compressed++;
+        progress_maker();
+      });
+    }
+  }
+
+  void startCompressingChain ()async {
+
+    setState(()  {
+      startedCompressingProsses = true;
+      photoOrPic = 1;
+    });
+    await CompressThePreparedVids();
+
+
+    setState(()  {
+      photoOrPic = 0;
+    });
+    await CompressThePreparedPics();
+  }
+
   @override
   void initState() {
     // TODO: implement initSta
@@ -430,7 +470,7 @@ class _MainHomePageState extends State<MainHomePage> {
     subscription = VideoCompress.compressProgress$.subscribe(
         (VideoProgress) => setState(() => this.VideoProgress = VideoProgress));
     _fabHeight = _initFabHeight;
-    startPreparingFilesAndClassifyThem();
+    print("CODE SDLFKJSKJ");
 
     // progress_maker();
     // totalFiles = sortedMap.length;
@@ -645,62 +685,84 @@ class _MainHomePageState extends State<MainHomePage> {
     );
   }
 
+
   Widget _body() {
     print("STOPCODE LKMLMN VIEW THE NONREAL CODE");
 
     print(photoesPrepared.length.toString());
     // print(generateRandomPercentage());
-    startPreparingFilesAndClassifyThem();
+
+    // firsPageIdentifier = true;
     return SafeArea(
       child: Scaffold(
         body: Column(children: [
           if (firsPageIdentifier)
-            firstPageWidget(
-                photoesPrepared: photoesPrepared.length.toString(),
-                vidsPrepared: videosPrepared.length.toString(),
-                pressEvent: () {
-                  setState(() {
-                    firsPageIdentifier = false;
-                  });
-                  startPreparingFilesAndClassifyThem();
-                },
-                cameraFiles: total_Files_Length_Obtained_From_NATIVE.toString(),
-                OnPressed: () {
-                  setState(() {
-                    startPreparingFilesAndClassifyThem();
-                    restarter();
-                  });
-                }),
-          if (startedCompressingProsses && photoOrPic == 0 )
-            Text(picsCompressed.toString())else if (startedCompressingProsses && photoOrPic == 1 )
 
-            startedCompressingProssesWidget(
+          firstPageWidget(
+              photoesPrepared: photoesPrepared.length.toString(),
+              vidsPrepared: videosPrepared.length.toString(),
+              pressEvent: () {
+                setState(() {
+                  firsPageIdentifier = false;
+                  startCompressingChain();
+                });
+              },
+              cameraFiles: total_Files_Length_Obtained_From_NATIVE,
+              OnPressedForRefresh: () {
+                setState(() {
+                  restarter();
+                });
+              })
+          else if (startedCompressingProsses && photoOrPic == 1)
+            startedCompressingProssesWidget(vidsPreparedlen: videosPrepared.length.toString(),
+              picsPreparedlen: photoesPrepared.length.toString(),
               vidthumbnail: thumbnailVideoPath,
               vidsCompressed: vidsCompressed.toString(),
               picsCompressed: picsCompressed.toString(),
               fileName: fileUnderCompress,
               picthumbnail: picAsAThumbnail,
-              cameraFiles: total_Files_Length_Obtained_From_NATIVE.toString(),
+              cameraFiles: total_Files_Length_Obtained_From_NATIVE,
               filesCompressed: compressed.toString(),
               totalFilesPercentage: progress,
-              currentFilePercentageVid:video_Compressing_Percentage!,
+              currentFilePercentageVid: video_Compressing_Percentage!,
+              currentFilePercentagePic: generateRandomPercentage(),
+              photoOrPic: photoOrPic,
+            )
+          // Row(
+          //   children: [
+          //     AnimatedCounterPage(countTo: photoesPrepared.length),
+          //     Text(photoesPrepared.length.toString())
+          //   ],
+          // )
+          else if (startedCompressingProsses && photoOrPic == 0)
+            startedCompressingProssesWidget(picsPreparedlen:photoesPrepared.length.toString() ,vidsPreparedlen: videosPrepared.length.toString(),
+              vidthumbnail: thumbnailVideoPath,
+              vidsCompressed: vidsCompressed.toString(),
+              picsCompressed: picsCompressed.toString(),
+              fileName: fileUnderCompress,
+              picthumbnail: picAsAThumbnail,
+              cameraFiles: total_Files_Length_Obtained_From_NATIVE,
+              filesCompressed: compressed.toString(),
+              totalFilesPercentage: progress,
+              currentFilePercentageVid: video_Compressing_Percentage!,
               currentFilePercentagePic: generateRandomPercentage(),
               photoOrPic: photoOrPic,
             )
           else if (compressionFinished)
             firstPageWidget(
-              photoesPrepared: photoesPrepared.length.toString(),
+                photoesPrepared: photoesPrepared.length.toString(),
                 vidsPrepared: photoesPrepared.length.toString(),
                 pressEvent: () {
                   setState(() {
                     firsPageIdentifier = false;
+
                   });
-                  startPreparingFilesAndClassifyThem();
+                  // startPreparingFilesAndClassifyThem();
                 },
-                cameraFiles: total_Files_Length_Obtained_From_NATIVE.toString(),
-                OnPressed: () {
+                cameraFiles: total_Files_Length_Obtained_From_NATIVE,
+                OnPressedForRefresh: () {
                   setState(() {
-                    startPreparingFilesAndClassifyThem();
+                    // startPreparingFilesAndClassifyThem();
                     restarter();
                   });
                 }),
@@ -884,18 +946,19 @@ class videoPicWidget extends StatelessWidget {
     required this.vidsCompressed,
     required this.currentFilePercentageForLinear,
     required this.fileBeingCompressedPercentageText,
-    required this.fileName,
+    required this.fileName, required this.vidsPreparedlen,
   });
 
   final Uint8List? vidthumbnail;
   final double totalFilesPercentage;
   final String filesCompressed;
-  final String cameraFiles;
+  final int cameraFiles;
   final String picsCompressed;
   final String vidsCompressed;
   final double currentFilePercentageForLinear;
   final String fileBeingCompressedPercentageText;
   final String fileName;
+  final String vidsPreparedlen;
 
   @override
   Widget build(BuildContext context) {
@@ -908,7 +971,8 @@ class videoPicWidget extends StatelessWidget {
         rowOfTextOfCompressedFilesNum(
           compressed: filesCompressed,
           total_Files_Length: cameraFiles,
-          compressorIsStatus: "1",
+          compressorIsStatus: "vid",
+          vidsPreparedlen: vidsPreparedlen,
         ),
         CompressedPicAndVidTextViewer(
             picsCompressed: picsCompressed, vidsCompressed: vidsCompressed),
@@ -995,7 +1059,7 @@ class startedCompressingProssesWidget extends StatelessWidget {
   final double totalFilesPercentage;
 
   // final double currentFilePercentage;
-  final String cameraFiles;
+  final int cameraFiles;
 
   final String filesCompressed;
   final picthumbnail;
@@ -1008,6 +1072,9 @@ class startedCompressingProssesWidget extends StatelessWidget {
   final double currentFilePercentageVid;
 
   final double currentFilePercentagePic;
+  final String vidsPreparedlen;
+  final String picsPreparedlen;
+
   const startedCompressingProssesWidget({
     super.key,
     required this.fileName,
@@ -1021,9 +1088,9 @@ class startedCompressingProssesWidget extends StatelessWidget {
     required this.vidsCompressed,
     required this.photoOrPic,
     required this.vidthumbnail,
-
     required this.currentFilePercentageVid,
-    required this.currentFilePercentagePic,
+    required this.currentFilePercentagePic, required this.vidsPreparedlen, required this.picsPreparedlen,
+
   });
   @override
   Widget build(BuildContext context) {
@@ -1039,6 +1106,7 @@ class startedCompressingProssesWidget extends StatelessWidget {
           fileName: fileName);
     } else if (photoOrPic == 1) {
       return videoPicWidget(
+        vidsPreparedlen: vidsPreparedlen,
           vidthumbnail: vidthumbnail,
           totalFilesPercentage: totalFilesPercentage,
           filesCompressed: filesCompressed,
@@ -1046,7 +1114,8 @@ class startedCompressingProssesWidget extends StatelessWidget {
           picsCompressed: picsCompressed,
           vidsCompressed: vidsCompressed,
           currentFilePercentageForLinear: currentFilePercentageVid,
-          fileBeingCompressedPercentageText: filteringCurrentFileCompressed(currentFilePercentageVid),
+          fileBeingCompressedPercentageText:
+              filteringCurrentFileCompressed(currentFilePercentageVid),
           fileName: fileName);
     } else {
       return Container(
@@ -1070,7 +1139,7 @@ class picViewerWidget extends StatelessWidget {
 
   final double totalFilesPercentage;
   final String filesCompressed;
-  final String cameraFiles;
+  final int cameraFiles;
   final String picsCompressed;
   final String vidsCompressed;
   final double currentFilePercentage;
@@ -1090,22 +1159,31 @@ class picViewerWidget extends StatelessWidget {
             fit: BoxFit.cover,
           ),
         ),
-        linearPercentIndicatorWithPadding(
-            context: context,
-            video_Compressing_Percentage_Filtered: totalFilesPercentage),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(child: Text("compressing the pictures ",style: TextStyle(fontSize: 17),)),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: CircularProgressIndicator(),
+        ),
+        // linearPercentIndicatorWithPadding(
+        //     context: context,
+        //     video_Compressing_Percentage_Filtered: totalFilesPercentage),
+
         rowOfTextOfCompressedFilesNum(
           compressed: filesCompressed,
           total_Files_Length: cameraFiles,
-          compressorIsStatus: "1",
+          compressorIsStatus: "pic",
         ),
-        CompressedPicAndVidTextViewer(
-            picsCompressed: picsCompressed, vidsCompressed: vidsCompressed),
-        linearPercentIndicatorWithPadding(
-            context: context,
-            video_Compressing_Percentage_Filtered: currentFilePercentage),
-        BeingCompressedPercentageTextViewer(
-            fileBeingCompressedPercentage: "pics"),
-        FileNameTextViewer(fileName: fileName),
+        // CompressedPicAndVidTextViewer(
+        //     picsCompressed: picsCompressed, vidsCompressed: vidsCompressed),
+        // linearPercentIndicatorWithPadding(
+        //     context: context,
+        //     video_Compressing_Percentage_Filtered: currentFilePercentage),
+        // BeingCompressedPercentageTextViewer(
+        //     fileBeingCompressedPercentage: "pics"),
+        // FileNameTextViewer(fileName: fileName),
       ],
     );
   }
@@ -1114,17 +1192,17 @@ class picViewerWidget extends StatelessWidget {
 class firstPageWidget extends StatelessWidget {
   final String photoesPrepared;
 
-  final String  vidsPrepared;
+  final String vidsPrepared;
 
   const firstPageWidget(
       {super.key,
-      required this.OnPressed,
+      required this.OnPressedForRefresh,
       required this.cameraFiles,
-        required this.photoesPrepared,
-        required this.vidsPrepared,
+      required this.photoesPrepared,
+      required this.vidsPrepared,
       required this.pressEvent});
-  final void Function()? OnPressed;
-  final String cameraFiles;
+  final void Function()? OnPressedForRefresh;
+  final int cameraFiles;
   final Function() pressEvent;
 
   @override
@@ -1135,9 +1213,9 @@ class firstPageWidget extends StatelessWidget {
         linearPercentIndicatorWithPadding(
             context: context, video_Compressing_Percentage_Filtered: 0.0),
         rowOfTextOfCompressedFilesNum(
-          picsPrepared: photoesPrepared,
-          vidsPrepared:vidsPrepared ,
-          OnPressed: OnPressed,
+          picsPreparedlen: photoesPrepared,
+          vidsPreparedlen: vidsPrepared,
+          OnPressed: OnPressedForRefresh,
           compressed: "",
           total_Files_Length: cameraFiles,
           compressorIsStatus: '0',
@@ -1163,42 +1241,60 @@ class reloadButton extends StatelessWidget {
 }
 
 class rowOfTextOfCompressedFilesNum extends StatelessWidget {
-  final String? vidsPrepared;
+  final String? vidsPreparedlen;
 
-  final String? picsPrepared;
+  final String? picsPreparedlen;
 
   const rowOfTextOfCompressedFilesNum(
       {super.key,
       this.OnPressed,
       required this.compressorIsStatus,
       required this.compressed,
-      required this.total_Files_Length,this.vidsPrepared,this.picsPrepared});
+      required this.total_Files_Length,
+      this.vidsPreparedlen,
+      this.picsPreparedlen});
   final void Function()? OnPressed;
   final String compressorIsStatus;
   final String compressed;
-  final String total_Files_Length;
+  final int total_Files_Length;
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (compressorIsStatus == "1")
+        if (compressorIsStatus == "vid")
           Text(
-            '$compressed files compressed from $total_Files_Length',
+            '$compressed videos compressed from $vidsPreparedlen',
             style: const TextStyle(
                 color: Colors.black87,
                 fontSize: 15,
                 fontWeight: FontWeight.w400),
           )
-        else if (compressorIsStatus == "0")
+        else if (compressorIsStatus == "pic")
           Row(
             children: [
+              AnimatedCounterPage(countTo: total_Files_Length, fontSize: 15),
               Text(
-                'camera files: $total_Files_Length videos: $vidsPrepared pic: $picsPrepared' ,
-                style: TextStyle(
+                ' pictures compressed from ${total_Files_Length.toString()}',
+                style: const TextStyle(
                     color: Colors.black87,
                     fontSize: 15,
                     fontWeight: FontWeight.w400),
+              ),
+            ],
+          )
+        else if (compressorIsStatus == "0")
+          Row(
+            children: [
+              SizedBox(
+                width: 270,
+                child: Text(
+                  'camera files: ${total_Files_Length.toString()} videos: $vidsPreparedlen pic: $picsPreparedlen',
+                  style: TextStyle(
+                      color: Colors.black87,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400),
+                ),
               ),
               reloadButton(OnPressed: OnPressed)
             ],
@@ -1207,7 +1303,7 @@ class rowOfTextOfCompressedFilesNum extends StatelessWidget {
           Row(
             children: [
               Text(
-                '$compressed files compressed from $total_Files_Length',
+                '$compressed files compressed from ${total_Files_Length.toString()}',
                 style: const TextStyle(
                     color: Colors.black87,
                     fontSize: 15,
@@ -1286,12 +1382,19 @@ class videoThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image.memory(
-      thumbnailVideoPath!,
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height / 2.5,
-      fit: BoxFit.contain,
-    );
+    if (thumbnailVideoPath == null){
+      return Container(width:MediaQuery.of(context).size.width,height: MediaQuery.of(context).size.height / 2.5,child: Center(child: CircularProgressIndicator()));
+    }else {
+      return
+
+        Image.memory(
+          thumbnailVideoPath!,
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height / 2.5,
+          fit: BoxFit.contain,
+        );
+    }
+
   }
 }
 
