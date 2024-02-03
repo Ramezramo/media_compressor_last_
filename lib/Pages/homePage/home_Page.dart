@@ -24,6 +24,8 @@ import '../../main.dart';
 import '../linear_percent_indicator.dart';
 import 'dart:typed_data';
 import 'package:image/image.dart' as img;
+import 'package:path/path.dart' as path;
+// import 'package:shimmer_animation/shimmer_animation.dart';
 
 Future<void> showTost(text) async {
   Fluttertoast.showToast(
@@ -66,7 +68,7 @@ Future<void> comprssorImageone() async {
   // print("id 89_097809099");
   // print(isSwitched);
   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-  if (pickedFile != null) ImageCompressAndGetFile(pickedFile?.path, isSwitched);
+  if (pickedFile != null) ImageCompressAndGetFile(pickedFile.path, isSwitched);
   if (pickedFile != null)
     showTost("image saved in /storage/emulated/0/Compressed_media_RM");
 }
@@ -117,8 +119,6 @@ class _MainHomePageState extends State<MainHomePage> {
   // late bool thumbnailPicFunction = false;
   // late bool thumbnailVideoFunction = false;
 
-  bool startedCompressingAvideo = false;
-
   String fileUnderCompress = "no files yet";
 
   double? VideoProgress = 0.0;
@@ -134,15 +134,23 @@ class _MainHomePageState extends State<MainHomePage> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   bool preparingFileToCompress = false;
   bool firsPageIdentifier = true;
+  bool bufferingPics = false;
   int picsCompressed = 0;
   int vidsCompressed = 0;
   int photoOrPic = 0;
 
-  List photoesPrepared = [];
-  List videosPrepared = [];
+  int photoesPreparedLen = 0;
+  int videosPreparedLen = 0;
+
+  List<MapEntry<String, int>> imagesObtainedFromNative = [];
+  List<MapEntry<String, int>> videosObtainedFromNative = [];
   void restarter() {
-    photoesPrepared = [];
-    videosPrepared = [];
+    bufferingPics = false;
+
+    videosObtainedFromNative = [];
+    imagesObtainedFromNative = [];
+    photoesPreparedLen = 0;
+    videosPreparedLen = 0;
 
     photoOrPic = 0;
     vidsCompressed = 0;
@@ -164,8 +172,6 @@ class _MainHomePageState extends State<MainHomePage> {
 
     // thumbnailPicFunction = false;
     // thumbnailVideoFunction = false;
-
-    startedCompressingAvideo = false;
 
     fileUnderCompress = "no files yet";
 
@@ -215,7 +221,7 @@ class _MainHomePageState extends State<MainHomePage> {
   }
 
   void progress_maker() async {
-    progress = compressed / videosPrepared.length;
+    progress = compressed / videosPreparedLen;
     setState(() {});
   }
 
@@ -225,48 +231,64 @@ class _MainHomePageState extends State<MainHomePage> {
     setState(() {});
   }
 
-  Future<Map> getCameraFilesData() async {
+  List SortTheVideos(userVideos) {
+    List videosSorted = [];
+    userVideos.sort((a, b) => a.value.compareTo(b.value) as int);
+    userVideos.forEach((entry) => videosSorted.add(entry.key));
 
+    return videosSorted;
+  }
 
+  List SortThePics(userImages) {
+    List picsSorted = [];
+    userImages.sort((a, b) => a.value.compareTo(b.value) as int);
+    userImages.forEach((entry) => picsSorted.add(entry.key));
+    userImages.forEach((entry) => print('${entry.key}: ${entry.value}'));
+    return picsSorted;
+  }
+
+  Future<void> getCameraFilesData() async {
     await requestStoragePermission();
 
-    // Pass the arguments when invoking the method
     Map data = await channel.invokeMethod("giveMEcameraData");
-    int i = 0;
 
     List<MapEntry<dynamic, dynamic>> sortedEntries = data.entries.toList();
+    print("code fghdfgh");
+    print(sortedEntries);
 
-    sortedEntries.sort((a, b) {
-      // Assuming the values are comparable, e.g., they are numbers or strings
-      return a.value.compareTo(b.value);
-    });
+    total_Files_Length_Obtained_From_NATIVE = sortedEntries.length;
 
-    map_Contains_Files_Names_Sorted_By_Date = Map.fromEntries(sortedEntries);
+    for (var entry in sortedEntries) {
+      String fileextension = path.extension(entry.key).toLowerCase();
+      int valueAsInt = int.tryParse(entry.value) ??
+          0; // Convert to int, default to 0 if conversion fails
 
-    map_Contains_Files_Names_Sorted_By_Date.forEach((key, value) {
-      i++;
-    });
-    setState(() {
-      load = false;
-    });
-    total_Files_Length_Obtained_From_NATIVE =
-        map_Contains_Files_Names_Sorted_By_Date.length;
-    startPreparingFilesAndClassifyThem();
+      if (fileextension == '.jpg' ||
+          fileextension == '.jpeg' ||
+          fileextension == '.png') {
+        photoesPreparedLen++;
+        imagesObtainedFromNative
+            .add(MapEntry(entry.key.toString(), valueAsInt));
+      } else if (fileextension == '.mp4' ||
+          fileextension == '.mov' ||
+          fileextension == '.avi') {
+        videosPreparedLen++;
+        videosObtainedFromNative
+            .add(MapEntry(entry.key.toString(), valueAsInt));
+      }
+    }
 
-    return map_Contains_Files_Names_Sorted_By_Date;
+    setState(() {});
   }
 
   Future<List<File>> getFilesInFolderSortedByDate() async {
-
     Directory? externalDir = await getExternalStorageDirectory();
     if (externalDir == null) {
-
       // Handle the case where external storage is not available
       return [];
     }
 
     Directory folder = Directory('/storage/emulated/0/DCIM/Camera');
-
 
     if (!folder.existsSync()) {
       // Handle the case where the folder does not exist
@@ -294,43 +316,40 @@ class _MainHomePageState extends State<MainHomePage> {
   }
 
   Future<void> comprssImage(path) async {
-    ImageCompressAndGetFile(path, isSwitched);
+    await ImageCompressAndGetFile(path, isSwitched);
   }
 
   Future<void> comprssorVideo(path) async {
-    setState(() {
-      startedCompressingAvideo = true;
-    });
+    setState(() {});
     await compressVideo(path, isSwitched);
     setState(() {
       VideoProgress = 0;
-      startedCompressingAvideo = false;
     });
   }
 
-  Future<void> startPreparingFilesAndClassifyThem() async {
-
-
-    for (final entry in map_Contains_Files_Names_Sorted_By_Date.entries) {
-      final key = entry.key;
-      if (key.endsWith(".jpg") ||
-          key.endsWith(".jpeg") ||
-          key.endsWith(".png") ||
-          key.endsWith(".gif") ||
-          key.endsWith(".webp")) {
-
-        photoesPrepared.add(key);
-
-      } else if (key.endsWith(".mp4") ||
-          key.endsWith(".mov") ||
-          key.endsWith(".mkv") ||
-          key.endsWith(".avi")) {
-
-        videosPrepared.add(key);
-
-      }
-    }
-  }
+  // Future<void> startPreparingFilesAndClassifyThem() async {
+  //
+  //
+  //   for (final entry in map_Contains_Files_Names_Sorted_By_Date.entries) {
+  //     final key = entry.key;
+  //     if (key.endsWith(".jpg") ||
+  //         key.endsWith(".jpeg") ||
+  //         key.endsWith(".png") ||
+  //         key.endsWith(".gif") ||
+  //         key.endsWith(".webp")) {
+  //
+  //       photoesPreparedLen.add(key);
+  //
+  //     } else if (key.endsWith(".mp4") ||
+  //         key.endsWith(".mov") ||
+  //         key.endsWith(".mkv") ||
+  //         key.endsWith(".avi")) {
+  //
+  //       videosPreparedLen.add(key);
+  //
+  //     }
+  //   }
+  // }
 
   int filteringFilesCompressedPercentage(rawPercentage) {
     /// The input always will be 0.95098798 in the def will clean all junk and the out will be 95%
@@ -349,16 +368,18 @@ class _MainHomePageState extends State<MainHomePage> {
     return randomPercentage;
   }
 
-
-  Future<void> CompressThePreparedPics() async{
-    for (final entry in photoesPrepared) {
-      print("compressing photos");
+  Future<void> CompressThePreparedPics() async {
+    // SortTheVideos(videosObtainedFromNative);
+    // SortThePics(imagesObtainedFromNative);
+    print(SortThePics(imagesObtainedFromNative));
+    for (final entry in SortThePics(imagesObtainedFromNative)) {
+      print("compressing photos $entry");
       await comprssImage(entry);
     }
   }
 
-  Future<void> CompressThePreparedVids() async{
-    for (final entry in videosPrepared) {
+  Future<void> CompressThePreparedVids() async {
+    for (final entry in SortTheVideos(videosObtainedFromNative)) {
       print("compressing vids");
 
       thumbnailVideoPath = await createVideoThumbnail(entry);
@@ -367,9 +388,7 @@ class _MainHomePageState extends State<MainHomePage> {
         photoOrPic = 1;
       });
 
-
       await comprssorVideo(entry);
-
 
       setState(() {
         vidsCompressed++;
@@ -380,19 +399,25 @@ class _MainHomePageState extends State<MainHomePage> {
     }
   }
 
-  void startCompressingChain ()async {
-
-    setState(()  {
+  void startCompressingChain() async {
+    setState(() {
       startedCompressingProsses = true;
       photoOrPic = 1;
     });
     await CompressThePreparedVids();
 
-
-    setState(()  {
+    setState(() {
       photoOrPic = 0;
+
     });
     await CompressThePreparedPics();
+    setState(() {
+      compressionFinished =  true;
+      startedCompressingProsses = false;
+      bufferingPics = false;
+
+    });
+    showTost("compressing finished");
   }
 
   @override
@@ -618,37 +643,48 @@ class _MainHomePageState extends State<MainHomePage> {
     );
   }
 
-
   Widget _body() {
     print("STOPCODE LKMLMN VIEW THE NONREAL CODE");
 
-    print(photoesPrepared.length.toString());
+    // print(photoesPreparedLen.length.toString());
     // print(generateRandomPercentage());
 
     // firsPageIdentifier = true;
     return SafeArea(
       child: Scaffold(
         body: Column(children: [
-          if (firsPageIdentifier)
+          if(bufferingPics && startedCompressingProsses)Column(
+            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
 
-          firstPageWidget(
-              photoesPrepared: photoesPrepared.length.toString(),
-              vidsPrepared: videosPrepared.length.toString(),
-              pressEvent: () {
-                setState(() {
-                  firsPageIdentifier = false;
-                  startCompressingChain();
-                });
-              },
-              cameraFiles: total_Files_Length_Obtained_From_NATIVE,
-              OnPressedForRefresh: () {
-                setState(() {
-                  restarter();
-                });
-              })
+              Padding(
+                padding: const EdgeInsets.all(150.0),
+                child: SizedBox(child: CircularProgressIndicator()),
+              ),
+              Center(child: Text("preparing the pictures",style: TextStyle(fontSize: 20),)),
+              Center(child: Text("please wait ",style: TextStyle(fontSize: 25),)),
+            ],
+          )
+          else if (firsPageIdentifier)
+            firstPageWidget(
+                photoesPrepared: photoesPreparedLen.toString(),
+                vidsPrepared: videosPreparedLen.toString(),
+                pressEvent: () {
+                  setState(() {
+                    firsPageIdentifier = false;
+                    startCompressingChain();
+                  });
+                },
+                cameraFiles: total_Files_Length_Obtained_From_NATIVE,
+                OnPressedForRefresh: () {
+                  setState(() {
+                    restarter();
+                  });
+                })
           else if (startedCompressingProsses && photoOrPic == 1)
-            startedCompressingProssesWidget(vidsPreparedlen: videosPrepared.length.toString(),
-              picsPreparedlen: photoesPrepared.length.toString(),
+            startedCompressingProssesWidget(
+              vidsPreparedlen: videosPreparedLen.toString(),
+              picsPreparedlen: photoesPreparedLen.toString(),
               vidthumbnail: thumbnailVideoPath,
               vidsCompressed: vidsCompressed.toString(),
               picsCompressed: picsCompressed.toString(),
@@ -661,19 +697,24 @@ class _MainHomePageState extends State<MainHomePage> {
               currentFilePercentagePic: generateRandomPercentage(),
               photoOrPic: photoOrPic,
             )
-          // Row(
-          //   children: [
-          //     AnimatedCounterPage(countTo: photoesPrepared.length),
-          //     Text(photoesPrepared.length.toString())
-          //   ],
-          // )
           else if (startedCompressingProsses && photoOrPic == 0)
-            startedCompressingProssesWidget(theEnimationEnded: (){
-              setState(() {
-                restarter();
-              });
+            startedCompressingProssesWidget(
+              theEnimationEnded: () {
+                if (!startedCompressingProsses) {
+                  setState(() {
+                    restarter();
+                  });
+                } else {
+                  setState(() {
+                    bufferingPics = true;
 
-            },picsPreparedlen:photoesPrepared.length.toString() ,vidsPreparedlen: videosPrepared.length.toString(),
+                  });
+
+
+                }
+              },
+              picsPreparedlen: photoesPreparedLen.toString(),
+              vidsPreparedlen: videosPreparedLen.toString(),
               vidthumbnail: thumbnailVideoPath,
               vidsCompressed: vidsCompressed.toString(),
               picsCompressed: picsCompressed.toString(),
@@ -688,13 +729,12 @@ class _MainHomePageState extends State<MainHomePage> {
             )
           else if (compressionFinished)
             firstPageWidget(
-                photoesPrepared: photoesPrepared.length.toString(),
-                vidsPrepared: photoesPrepared.length.toString(),
+                photoesPrepared: photoesPreparedLen.toString(),
+                vidsPrepared: photoesPreparedLen.toString(),
                 pressEvent: () {
                   setState(() {
                     firsPageIdentifier = false;
                     startCompressingChain();
-
                   });
                   // startPreparingFilesAndClassifyThem();
                 },
@@ -885,7 +925,8 @@ class videoPicWidget extends StatelessWidget {
     required this.vidsCompressed,
     required this.currentFilePercentageForLinear,
     required this.fileBeingCompressedPercentageText,
-    required this.fileName, required this.vidsPreparedlen,
+    required this.fileName,
+    required this.vidsPreparedlen,
   });
 
   final Uint8List? vidthumbnail;
@@ -1029,15 +1070,17 @@ class startedCompressingProssesWidget extends StatelessWidget {
     required this.photoOrPic,
     required this.vidthumbnail,
     required this.currentFilePercentageVid,
-    required this.currentFilePercentagePic, required this.vidsPreparedlen, required this.picsPreparedlen, this.theEnimationEnded,
-
+    required this.currentFilePercentagePic,
+    required this.vidsPreparedlen,
+    required this.picsPreparedlen,
+    this.theEnimationEnded,
   });
   @override
   Widget build(BuildContext context) {
     if (photoOrPic == 0) {
       // print("CODE LKJDSFLK");
       return picViewerWidget(
-        theEnimationEnded: theEnimationEnded,
+          theEnimationEnded: theEnimationEnded,
           totalFilesPercentage: totalFilesPercentage,
           filesCompressed: filesCompressed,
           cameraFiles: cameraFiles,
@@ -1047,7 +1090,7 @@ class startedCompressingProssesWidget extends StatelessWidget {
           fileName: fileName);
     } else if (photoOrPic == 1) {
       return videoPicWidget(
-        vidsPreparedlen: vidsPreparedlen,
+          vidsPreparedlen: vidsPreparedlen,
           vidthumbnail: vidthumbnail,
           totalFilesPercentage: totalFilesPercentage,
           filesCompressed: filesCompressed,
@@ -1075,7 +1118,8 @@ class picViewerWidget extends StatelessWidget {
     required this.picsCompressed,
     required this.vidsCompressed,
     required this.currentFilePercentage,
-    required this.fileName, this.theEnimationEnded,
+    required this.fileName,
+    this.theEnimationEnded,
   });
 
   final double totalFilesPercentage;
@@ -1103,7 +1147,11 @@ class picViewerWidget extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Center(child: Text("compressing the pictures ",style: TextStyle(fontSize: 17),)),
+          child: Center(
+              child: Text(
+            "compressing the pictures ",
+            style: TextStyle(fontSize: 17),
+          )),
         ),
         Padding(
           padding: const EdgeInsets.all(20.0),
@@ -1114,7 +1162,7 @@ class picViewerWidget extends StatelessWidget {
         //     video_Compressing_Percentage_Filtered: totalFilesPercentage),
 
         rowOfTextOfCompressedFilesNum(
-          theEnimationEnded:theEnimationEnded ,
+          theEnimationEnded: theEnimationEnded,
           compressed: filesCompressed,
           total_Files_Length: cameraFiles,
           compressorIsStatus: "pic",
@@ -1195,7 +1243,8 @@ class rowOfTextOfCompressedFilesNum extends StatelessWidget {
       required this.compressed,
       required this.total_Files_Length,
       this.vidsPreparedlen,
-      this.picsPreparedlen,this.theEnimationEnded});
+      this.picsPreparedlen,
+      this.theEnimationEnded});
   final void Function()? OnPressed;
   final String compressorIsStatus;
   final String compressed;
@@ -1217,8 +1266,10 @@ class rowOfTextOfCompressedFilesNum extends StatelessWidget {
         else if (compressorIsStatus == "pic")
           Row(
             children: [
-
-              AnimatedCounterPage(countTo: total_Files_Length, fontSize: 15,theEnimationEnded: theEnimationEnded),
+              AnimatedCounterPage(
+                  countTo: total_Files_Length,
+                  fontSize: 15,
+                  theEnimationEnded: theEnimationEnded),
               Text(
                 ' pictures compressed from ${total_Files_Length.toString()}',
                 style: const TextStyle(
@@ -1327,19 +1378,19 @@ class videoThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (thumbnailVideoPath == null){
-      return Container(width:MediaQuery.of(context).size.width,height: MediaQuery.of(context).size.height / 2.5,child: Center(child: CircularProgressIndicator()));
-    }else {
-      return
-
-        Image.memory(
-          thumbnailVideoPath!,
+    if (thumbnailVideoPath == null) {
+      return Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height / 2.5,
-          fit: BoxFit.contain,
-        );
+          child: Center(child: CircularProgressIndicator()));
+    } else {
+      return Image.memory(
+        thumbnailVideoPath!,
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height / 2.5,
+        fit: BoxFit.contain,
+      );
     }
-
   }
 }
 

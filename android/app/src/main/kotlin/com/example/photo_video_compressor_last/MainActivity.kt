@@ -199,6 +199,8 @@ class MainActivity: FlutterActivity() {
         } catch (e: Exception) {
             throw e
         }
+        println("resultMapfdfd")
+        println(resultMap)
         return resultMap
     }
 
