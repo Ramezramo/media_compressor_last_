@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'Pages/homePage/donePage.dart';
 import 'Pages/homePage/home_Page.dart';
 // import 'Pages/homePageWidgets/home_Page.dart';
 
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      // home: donePage(),
       home: MainHomePage(),
       // home: PostCompression(),
     );

@@ -65,7 +65,8 @@ class MainActivity: FlutterActivity() {
                 val filePathAsString = file_path?.toString() ?: ""
 //                println("this is the file path")
 //                println(filePathAsString)
-                moveFile(filePathAsString,"/storage/emulated/0/Compressed_media_RM")
+                val fileMovedPath = moveFile(filePathAsString,"/storage/emulated/0/Compressed_media_RM")
+                result.success(fileMovedPath)
             } else {
 
             }
@@ -120,7 +121,7 @@ class MainActivity: FlutterActivity() {
     }
 
 
-    fun moveFile(from: String, to: String) {
+    fun moveFile(from: String, to: String) : String {
         val folderCreated = createTheFolder()
 
         if (folderCreated) {
@@ -153,16 +154,20 @@ class MainActivity: FlutterActivity() {
                 if (result) {
                     // The file was moved successfully
 //                    println("The file was moved successfully to ${destinationFile.path}")
+                    return destinationFile.path
                 } else {
                     // The file could not be moved
                     println("The file could not be moved")
+                    return "failed"
                 }
             } else {
                 // Handle the case where getExternalFilesDir returned null
                 println("External storage directory is null. File move operation failed.")
+                return "failed"
             }
         } else {
 //            result.error("CREATE_FOLDER_ERROR", "Failed to create folder", null)
+            return "failed"
         }
 
 

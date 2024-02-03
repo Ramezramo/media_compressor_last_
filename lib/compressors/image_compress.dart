@@ -8,6 +8,8 @@ import 'package:gallery_saver/gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
+
+import '../Pages/homePage/home_Page.dart';
 // import '../../../vedioAndPhotosEdited/lib/Utils/Show_Notification.dart';
 
 
@@ -28,24 +30,47 @@ Future<void> moveFileInNative(filePath) async {
   Map<String, dynamic> arguments = {
     "filepath": filePath,  // Replace with your argument values
   };
-  Map data = await channel.invokeMethod("moveScours",arguments);
+  var data = await channel.invokeMethod("moveScours",arguments);
+  print("CODE SLDKJFDSF");
+  print(data);
 }
 
-Future<File?> ImageCompressAndGetFile(file, bool deleteSource) async {
+Future<File?> ImageCompressAndGetFile(minHeight,minWidth,quality,file, bool deleteSource) async {
   // print("$deleteSource at 987-98789");
+  // quality will be 144p 360p 480p 720p
 
-  double quality = 20;
+  int minHeightInted = int.parse(minHeight);
+  int minWidthInted = int.parse(minWidth);
+
   try {
     // print("in 230948_234");
-    var perquality;
-    if (quality <= 50) {
-      perquality = 20;
-    } else if (quality >= 50) {
-      perquality = 34;
-    }
+    int perquality;
+    if (quality == "1080p"){
+      perquality = 98;
 
+    }if (quality == "720p"){
+      perquality = 80;
+
+    } else if (quality == "540p"){
+      perquality = 65;
+    }else if (quality == "480p"){
+      perquality = 40;
+    } else if (quality == "360p"){
+      perquality = 20;
+    } else  if (quality == "144p"){
+      perquality = 5;
+    }else {
+      perquality = 100;
+    }
+    print("code dsfghsdf");
+print(perquality);
+    print(minHeight);
+    print(minWidth);
+    print(quality);
     Uint8List? result = await FlutterImageCompress.compressWithFile(
       file,
+      minHeight: minHeightInted,
+      minWidth: minWidthInted,
       quality: perquality,
       format: CompressFormat.jpeg,
     );
@@ -58,15 +83,30 @@ Future<File?> ImageCompressAndGetFile(file, bool deleteSource) async {
         // Create the directory if it doesn't exist
         String savePath = '${appDocDir.path}/compressedPhostos';
         Directory(savePath).createSync(recursive: true);
+        // Read the original modification time
+        File fileReadDate = File(file);
+        DateTime originalModificationTime = await fileReadDate.lastModified();
+        ///get the size Before the compressing
+        int fileSizeBeforeCompress = await fileReadDate.length();
+        filesSizeBeforeCompressFromHomePage += fileSizeBeforeCompress ;
+        ///get the size Before the compressing
 
+
+        print("CODE KJHKJHJK");
+        print(originalModificationTime);
         // Create a new File with the desired file path
         // var datetime = DateTime.now();
         String fileName = path.basename(file);
-        File compressedFile = File('$savePath/comp_${fileName}');
+        String thePathOfFileCompressedInsideTheAppAndroidFiles = '$savePath/comp_${fileName}';
+        File compressedFile = File(thePathOfFileCompressedInsideTheAppAndroidFiles);
 
         // Write the compressed image data to the file
         await compressedFile.writeAsBytes(result);
-
+        await compressedFile.setLastModified(originalModificationTime);
+        ///get the size after the compressing
+        int fileSizeAfterCompress = await compressedFile.length();
+        filesSizeAfterCompressFromHomePage += fileSizeAfterCompress ;
+        ///get the size Before the compressing
         // Check if the file was successfully saved
         if (await compressedFile.exists()) {
           moveFileInNative(compressedFile.path);

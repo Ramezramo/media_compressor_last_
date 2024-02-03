@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'donePage.dart';
+
 
 class AnimatedCounterPage extends StatefulWidget {
   final int countTo;
@@ -36,6 +38,7 @@ class _AnimatedCounterPageState extends State<AnimatedCounterPage> with SingleTi
       if (status == AnimationStatus.completed) {
         // Animation has completed, invoke the callback
         widget.theEnimationEnded?.call();
+
       }
     });
 

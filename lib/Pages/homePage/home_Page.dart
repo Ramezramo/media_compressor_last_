@@ -25,6 +25,8 @@ import '../linear_percent_indicator.dart';
 import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as path;
+
+import 'donePage.dart';
 // import 'package:shimmer_animation/shimmer_animation.dart';
 
 Future<void> showTost(text) async {
@@ -45,6 +47,17 @@ class MainHomePage extends StatefulWidget {
 }
 
 bool isSwitched = false;
+TextEditingController pictureWidth = TextEditingController(text: '1920');
+// TextEditingController pictureWidth = '1920';
+// String pictureHeight = '1080';
+TextEditingController pictureHeight = TextEditingController(text: '1080');
+
+String picselectedValue = '480p';
+String vidselectedValue = '480p';
+// String minWidth = "1920";
+// String minHeight = "1080";
+int filesSizeAfterCompressFromHomePage = 0;
+int filesSizeBeforeCompressFromHomePage = 0;
 const channel = MethodChannel('NativeChannel');
 
 Future<bool> requestStoragePermission() async {
@@ -68,9 +81,11 @@ Future<void> comprssorImageone() async {
   // print("id 89_097809099");
   // print(isSwitched);
   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-  if (pickedFile != null) ImageCompressAndGetFile(pickedFile.path, isSwitched);
   if (pickedFile != null)
-    showTost("image saved in /storage/emulated/0/Compressed_media_RM");
+    ImageCompressAndGetFile(pictureHeight.text, pictureWidth.text, picselectedValue,
+        pickedFile.path, isSwitched);
+  if (pickedFile != null)
+    showTost("image saved in Compressed_media_RM Folder");
 }
 
 String filteringCurrentFileCompressed(video_Compressing_Percentage) {
@@ -144,7 +159,12 @@ class _MainHomePageState extends State<MainHomePage> {
 
   List<MapEntry<String, int>> imagesObtainedFromNative = [];
   List<MapEntry<String, int>> videosObtainedFromNative = [];
+
+  bool isTransactionInProgress = true;
   void restarter() {
+    isTransactionInProgress = true;
+    filesSizeAfterCompressFromHomePage = 0;
+    filesSizeBeforeCompressFromHomePage = 0;
     bufferingPics = false;
 
     videosObtainedFromNative = [];
@@ -210,7 +230,7 @@ class _MainHomePageState extends State<MainHomePage> {
     });
 
     if (pickedFile != null) {
-      await compressVideo(pickedFile!.path, isSwitched);
+      await compressVideo(vidselectedValue,pickedFile.path, isSwitched);
     }
     setState(() {
       isCompressing_From_Module = false;
@@ -316,12 +336,13 @@ class _MainHomePageState extends State<MainHomePage> {
   }
 
   Future<void> comprssImage(path) async {
-    await ImageCompressAndGetFile(path, isSwitched);
+    await ImageCompressAndGetFile(
+        pictureHeight.text, pictureWidth.text, picselectedValue, path, isSwitched);
   }
 
   Future<void> comprssorVideo(path) async {
     setState(() {});
-    await compressVideo(path, isSwitched);
+    await compressVideo(vidselectedValue,path, isSwitched);
     setState(() {
       VideoProgress = 0;
     });
@@ -371,9 +392,11 @@ class _MainHomePageState extends State<MainHomePage> {
   Future<void> CompressThePreparedPics() async {
     // SortTheVideos(videosObtainedFromNative);
     // SortThePics(imagesObtainedFromNative);
-    print(SortThePics(imagesObtainedFromNative));
+    // print(SortThePics(imagesObtainedFromNative));
     for (final entry in SortThePics(imagesObtainedFromNative)) {
-      print("compressing photos $entry");
+      // print("compressing photos $entry");
+      compressed ++;
+      picsCompressed ++;
       await comprssImage(entry);
     }
   }
@@ -381,6 +404,9 @@ class _MainHomePageState extends State<MainHomePage> {
   Future<void> CompressThePreparedVids() async {
     for (final entry in SortTheVideos(videosObtainedFromNative)) {
       print("compressing vids");
+      if (!isTransactionInProgress){
+        break;
+      }
 
       thumbnailVideoPath = await createVideoThumbnail(entry);
       setState(() {
@@ -393,7 +419,7 @@ class _MainHomePageState extends State<MainHomePage> {
       setState(() {
         vidsCompressed++;
 
-        compressed++;
+        compressed ++;
         progress_maker();
       });
     }
@@ -408,16 +434,23 @@ class _MainHomePageState extends State<MainHomePage> {
 
     setState(() {
       photoOrPic = 0;
-
     });
+
+    if (isTransactionInProgress){
     await CompressThePreparedPics();
-    setState(() {
-      compressionFinished =  true;
-      startedCompressingProsses = false;
-      bufferingPics = false;
-
-    });
+    // print(picsCompressed);
+    // print("CODE LSKDJFSDF");
     showTost("compressing finished");
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => donePage(FilesSizeAfter: filesSizeAfterCompressFromHomePage,FilesSizeBefore: filesSizeBeforeCompressFromHomePage,TotalFilesCompressed: "$compressed",TotalPics:"$picsCompressed" ,TotalVideos: "$vidsCompressed",)),
+    );}
+    // PushDonePage();
+    setState(() {
+      restarter();
+    });
+
+
   }
 
   @override
@@ -650,21 +683,30 @@ class _MainHomePageState extends State<MainHomePage> {
     // print(generateRandomPercentage());
 
     // firsPageIdentifier = true;
+
     return SafeArea(
       child: Scaffold(
         body: Column(children: [
-          if(bufferingPics && startedCompressingProsses)Column(
-            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-
-              Padding(
-                padding: const EdgeInsets.all(150.0),
-                child: SizedBox(child: CircularProgressIndicator()),
-              ),
-              Center(child: Text("preparing the pictures",style: TextStyle(fontSize: 20),)),
-              Center(child: Text("please wait ",style: TextStyle(fontSize: 25),)),
-            ],
-          )
+          if (bufferingPics && startedCompressingProsses)
+            Column(
+              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(150.0),
+                  child: SizedBox(child: CircularProgressIndicator()),
+                ),
+                Center(
+                    child: Text(
+                  "preparing the pictures",
+                  style: TextStyle(fontSize: 20),
+                )),
+                Center(
+                    child: Text(
+                  "please wait ",
+                  style: TextStyle(fontSize: 25),
+                )),
+              ],
+            )
           else if (firsPageIdentifier)
             firstPageWidget(
                 photoesPrepared: photoesPreparedLen.toString(),
@@ -682,7 +724,12 @@ class _MainHomePageState extends State<MainHomePage> {
                   });
                 })
           else if (startedCompressingProsses && photoOrPic == 1)
-            startedCompressingProssesWidget(
+            startedCompressingProssesWidget(onPressedCancel:() {
+              setState(() {
+                isTransactionInProgress = false;
+                VideoCompress.cancelCompression();
+              });
+            },
               vidsPreparedlen: videosPreparedLen.toString(),
               picsPreparedlen: photoesPreparedLen.toString(),
               vidthumbnail: thumbnailVideoPath,
@@ -698,19 +745,25 @@ class _MainHomePageState extends State<MainHomePage> {
               photoOrPic: photoOrPic,
             )
           else if (startedCompressingProsses && photoOrPic == 0)
-            startedCompressingProssesWidget(
+            startedCompressingProssesWidget(onPressedCancel: () {
+              setState(() {
+                isTransactionInProgress = false;
+                VideoCompress.cancelCompression();
+              });
+
+
+            },
               theEnimationEnded: () {
                 if (!startedCompressingProsses) {
-                  setState(() {
-                    restarter();
-                  });
+
+                  // setState(() {
+                  //   restarter();
+                  // });
                 } else {
+
                   setState(() {
                     bufferingPics = true;
-
                   });
-
-
                 }
               },
               picsPreparedlen: photoesPreparedLen.toString(),
@@ -926,7 +979,7 @@ class videoPicWidget extends StatelessWidget {
     required this.currentFilePercentageForLinear,
     required this.fileBeingCompressedPercentageText,
     required this.fileName,
-    required this.vidsPreparedlen,
+    required this.vidsPreparedlen, required this.onPressedCancel,
   });
 
   final Uint8List? vidthumbnail;
@@ -939,6 +992,7 @@ class videoPicWidget extends StatelessWidget {
   final String fileBeingCompressedPercentageText;
   final String fileName;
   final String vidsPreparedlen;
+  final Function()? onPressedCancel;
 
   @override
   Widget build(BuildContext context) {
@@ -964,6 +1018,18 @@ class videoPicWidget extends StatelessWidget {
             fileBeingCompressedPercentage:
                 "$fileBeingCompressedPercentageText%"),
         FileNameTextViewer(fileName: fileName),
+        IconButton(
+          icon: const Icon(Icons.cancel),
+          onPressed: onPressedCancel,
+
+          //     () {
+          //   setState(() {
+          //     isCompressing_From_Module = false;
+          //     VideoCompress.cancelCompression();
+          //     // VideoProgress = 0;
+          //   });
+          // },
+        ),
       ],
     );
   }
@@ -1055,7 +1121,7 @@ class startedCompressingProssesWidget extends StatelessWidget {
   final String vidsPreparedlen;
   final String picsPreparedlen;
   final VoidCallback? theEnimationEnded;
-
+  final Function()? onPressedCancel;
   const startedCompressingProssesWidget({
     super.key,
     required this.fileName,
@@ -1073,7 +1139,7 @@ class startedCompressingProssesWidget extends StatelessWidget {
     required this.currentFilePercentagePic,
     required this.vidsPreparedlen,
     required this.picsPreparedlen,
-    this.theEnimationEnded,
+    this.theEnimationEnded,required this.onPressedCancel,
   });
   @override
   Widget build(BuildContext context) {
@@ -1090,6 +1156,7 @@ class startedCompressingProssesWidget extends StatelessWidget {
           fileName: fileName);
     } else if (photoOrPic == 1) {
       return videoPicWidget(
+        onPressedCancel: onPressedCancel,
           vidsPreparedlen: vidsPreparedlen,
           vidthumbnail: vidthumbnail,
           totalFilesPercentage: totalFilesPercentage,
@@ -1213,7 +1280,39 @@ class firstPageWidget extends StatelessWidget {
         ),
         linearPercentIndicatorWithPadding(
             context: context, video_Compressing_Percentage_Filtered: 0.0),
+        deleteTheMainFile(),
         StartCompressingButton(context: context, pressEvent: pressEvent)
+      ],
+    );
+  }
+}
+
+class deleteTheMainFile extends StatefulWidget {
+  const deleteTheMainFile({super.key});
+
+  @override
+  State<deleteTheMainFile> createState() => _deleteTheMainFileState();
+}
+
+class _deleteTheMainFileState extends State<deleteTheMainFile> {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          "Delete the main file",
+          style: TextStyle(fontSize: 15, color: Colors.black),
+        ),
+        Switch(
+          value: isSwitched,
+          onChanged: (value) {
+            setState(() {
+              isSwitched =
+                  value; // Update the state variable when the switch is toggled.
+            });
+          },
+        ),
       ],
     );
   }
@@ -1623,6 +1722,138 @@ class swipeText extends StatelessWidget {
     );
   }
 }
+// import 'package:flutter/material.dart';
+
+class SettingsWidget extends StatefulWidget {
+  @override
+  _SettingsWidgetState createState() => _SettingsWidgetState();
+}
+
+class _SettingsWidgetState extends State<SettingsWidget> {
+  List<String> picDropdownValues = ['1080p','720p', '540p','480p', '360p', '144p'];
+  List<String> VideoDropdownValues = ['1080p','720p', '540p','480p', '360p'];
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Text input for user input
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("video quality", style: TextStyle(fontSize: 20)),
+              DropdownButton<String>(
+                value: vidselectedValue,
+                onChanged: (value) {
+                  setState(() {
+                    vidselectedValue = value!;
+                  });
+                },
+                items: VideoDropdownValues.map((value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("picture quality", style: TextStyle(fontSize: 20)),
+              DropdownButton<String>(
+                value: picselectedValue,
+                onChanged: (value) {
+                  setState(() {
+                    picselectedValue = value!;
+                  });
+                },
+                items: picDropdownValues.map((value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Card(
+              elevation: 5, // Set the elevation as per your preference
+              margin: EdgeInsets.all(10), // Set margins as per your preference
+              child: Padding(
+                padding:
+                EdgeInsets.all(10), // Set padding as per your preference
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Picture Width", style: TextStyle(fontSize: 14)),
+                    SizedBox(
+                      width: 40,
+                      child: TextField(
+                        controller: pictureWidth,
+                        // onChanged: (value) {
+                        //   setState(() {
+                        //     pictureWidth = value;
+                        //   });
+                        // },
+                        decoration: InputDecoration(
+                          labelText: 'width',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 16),
+
+          Padding(
+            padding: const EdgeInsets.only(bottom: 200.0),
+            child: Card(
+              elevation: 5, // Set the elevation as per your preference
+              margin: EdgeInsets.all(10), // Set margins as per your preference
+              child: Padding(
+                padding:
+                EdgeInsets.all(10), // Set padding as per your preference
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Picture Height", style: TextStyle(fontSize: 14)),
+                    SizedBox(
+                      width: 40,
+                      child: TextField(
+                        controller: pictureHeight,
+                        // onChanged: (value) {
+                        //   setState(() {
+                        //     pictureHeight = value;
+                        //   });
+                        // },
+                        decoration: InputDecoration(
+                          labelText: 'height',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          SizedBox(height: 16),
+
+          // Dropdown for selecting a value
+        ],
+      ),
+
+    );
+  }
+}
 
 class StatefulAlertDialog extends StatefulWidget {
   const StatefulAlertDialog({super.key});
@@ -1635,36 +1866,20 @@ class _StatefulAlertDialogState extends State<StatefulAlertDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text("Stateful Alert Dialog"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                "Delete the main file",
-                style: TextStyle(fontSize: 15, color: Colors.black),
-              ),
-              Switch(
-                value: isSwitched,
-                onChanged: (value) {
-                  setState(() {
-                    isSwitched =
-                        value; // Update the state variable when the switch is toggled.
-                  });
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
+      title: const Text("settings"),
+      content: SettingsWidget(),
+      // Column(
+      //   mainAxisSize: MainAxisSize.min,
+      //   children: [
+      //
+      //   ],
+      // ),
       actions: [
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text("Close"),
+          child: const Text("Done"),
         ),
       ],
     );
