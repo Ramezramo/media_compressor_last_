@@ -27,7 +27,24 @@ import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as path;
 
 import 'donePage.dart';
-// import 'package:shimmer_animation/shimmer_animation.dart';
+
+
+class MainHomePage extends StatefulWidget {
+  @override
+  _MainHomePageState createState() => _MainHomePageState();
+}
+
+bool isSwitched = false;
+TextEditingController pictureWidth = TextEditingController(text: '1920');
+
+TextEditingController pictureHeight = TextEditingController(text: '1080');
+
+String picselectedValue = '480p';
+String vidselectedValue = '480p';
+
+int filesSizeAfterCompressFromHomePage = 0;
+int filesSizeBeforeCompressFromHomePage = 0;
+const channel = MethodChannel('NativeChannel');
 
 Future<void> showTost(text) async {
   Fluttertoast.showToast(
@@ -40,25 +57,6 @@ Future<void> showTost(text) async {
     fontSize: 14, // Font size of the toast message
   );
 }
-
-class MainHomePage extends StatefulWidget {
-  @override
-  _MainHomePageState createState() => _MainHomePageState();
-}
-
-bool isSwitched = false;
-TextEditingController pictureWidth = TextEditingController(text: '1920');
-// TextEditingController pictureWidth = '1920';
-// String pictureHeight = '1080';
-TextEditingController pictureHeight = TextEditingController(text: '1080');
-
-String picselectedValue = '480p';
-String vidselectedValue = '480p';
-// String minWidth = "1920";
-// String minHeight = "1080";
-int filesSizeAfterCompressFromHomePage = 0;
-int filesSizeBeforeCompressFromHomePage = 0;
-const channel = MethodChannel('NativeChannel');
 
 Future<bool> requestStoragePermission() async {
   final status = await Permission.storage.request();
@@ -78,8 +76,7 @@ Future<bool> requestStoragePermission() async {
 Future<void> comprssorImageone() async {
   requestStoragePermission();
   final picker = ImagePicker();
-  // print("id 89_097809099");
-  // print(isSwitched);
+
   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
   if (pickedFile != null)
     ImageCompressAndGetFile(pictureHeight.text, pictureWidth.text, picselectedValue,
@@ -91,7 +88,7 @@ Future<void> comprssorImageone() async {
 String filteringCurrentFileCompressed(video_Compressing_Percentage) {
   String video_Compressing_Percentage_Filtered;
   try {
-    // print("at 11232309_#@4");
+
     video_Compressing_Percentage_Filtered =
         video_Compressing_Percentage.toString().substring(2, 4);
 
@@ -131,17 +128,12 @@ class _MainHomePageState extends State<MainHomePage> {
   /// to tell the user the compressing process finished
   bool compressionFinished = false;
 
-  // late bool thumbnailPicFunction = false;
-  // late bool thumbnailVideoFunction = false;
-
   String fileUnderCompress = "no files yet";
 
   double? VideoProgress = 0.0;
   late Subscription subscription;
 
   late double? video_Compressing_Percentage;
-
-  // late String video_Compressing_Percentage_Filtered = "0";
 
   late bool viewSettingsButtonsBeforePresssing = true;
   bool startedCompressingProsses = false;
@@ -178,7 +170,7 @@ class _MainHomePageState extends State<MainHomePage> {
     firsPageIdentifier = true;
     bool preparingFileToCompress = false;
     startedCompressingProsses = false;
-    // value;
+
     map_Contains_Files_Names_Sorted_By_Date = {};
     load = true;
     progress = 0.0;
@@ -190,17 +182,12 @@ class _MainHomePageState extends State<MainHomePage> {
     compressionFinished = false;
     thumbnailVideoPath;
 
-    // thumbnailPicFunction = false;
-    // thumbnailVideoFunction = false;
-
     fileUnderCompress = "no files yet";
 
     VideoProgress = 0.0;
     subscription;
 
     video_Compressing_Percentage;
-
-    // video_Compressing_Percentage_Filtered = "0";
 
     viewSettingsButtonsBeforePresssing = true;
     getCameraFilesData();

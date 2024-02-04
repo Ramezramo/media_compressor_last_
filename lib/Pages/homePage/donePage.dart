@@ -1,5 +1,7 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+
+
 String formatFileSize(int fileSizeInBytes) {
   if (fileSizeInBytes < 1024) {
     return '$fileSizeInBytes Bytes';
@@ -61,7 +63,7 @@ class donePage extends StatelessWidget {
                     ),
                     SizedBox(height: 30,),
                     Text(
-                      "$TotalFilesCompressed file compressed",
+                      "$TotalFilesCompressed files compressed",
                       style: TextStyle(fontSize: 20,fontWeight: FontWeight.w300, color: Color(0xFFF4F2FA)),
                     ),
                     Text(

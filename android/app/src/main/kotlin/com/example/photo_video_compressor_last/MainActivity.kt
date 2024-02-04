@@ -67,7 +67,25 @@ class MainActivity: FlutterActivity() {
 //                println(filePathAsString)
                 val fileMovedPath = moveFile(filePathAsString,"/storage/emulated/0/Compressed_media_RM")
                 result.success(fileMovedPath)
-            } else {
+            } else if (call.method =="moveScoursVideo"){
+//                println("moveScours CODE SLDKFJSOI3445")
+                val file_path = call.argument<String>("filepath")
+                val filePathAsString = file_path?.toString() ?: ""
+
+                val mainFileName = call.argument<String>("mainFileName")
+                if (mainFileName != null && filePathAsString.isNotBlank()) {
+                    val fileMovedPath = moveFileVideo(mainFileName,filePathAsString,"/storage/emulated/0/Compressed_media_RM")
+                    result.success(fileMovedPath)
+                } else {
+                    result.error("INVALID_ARGUMENTS", "mainFileName or filePathAsString is null or blank", null)
+                }
+
+
+
+//                println("this is the file path")
+//                println(filePathAsString)
+//                result.success(fileMovedPath)
+            }else {
 
             }
         }
@@ -125,11 +143,11 @@ class MainActivity: FlutterActivity() {
         val folderCreated = createTheFolder()
 
         if (folderCreated) {
-//            result.success("Folder created successfully")
+            // result.success("Folder created successfully")
             // Get the source file from the internal storage
             val parts = from.split(File.separator)
 
-// Get the last part, which should be the file name
+            // Get the last part, which should be the file name
             val fileName = parts.last()
             val directoryPath = parts.dropLast(1).joinToString(File.separator)
             val sourceFile = File(directoryPath, fileName)
@@ -172,6 +190,65 @@ class MainActivity: FlutterActivity() {
 
 
     }
+
+
+    fun moveFileVideo(mainFileNname : String,from: String, to: String) : String {
+        val folderCreated = createTheFolder()
+
+        if (folderCreated) {
+            // result.success("Folder created successfully")
+            // Get the source file from the internal storage
+            val parts = from.split(File.separator)
+
+            // Get the last part, which should be the file name
+            val fileName = parts.last()
+//            print(fileName)
+            print("step 1 ")
+            val directoryPath = parts.dropLast(1).joinToString(File.separator)
+
+            print("step 2 ")
+            val sourceFile = File(directoryPath, fileName)
+            print("step 3 ")
+
+            // Get the destination directory from the external storage
+            val destinationDir = to
+
+            if (destinationDir != null) {
+                // Check if the destination directory exists, and create it if not
+//            if (!destinationDir.exists()) {
+//                destinationDir.mkdirs()
+//            }
+                print("step 4 ")
+                // Create the destination file with the same name as the source file
+                val destinationFile = File(destinationDir, mainFileNname)
+                print("step 5 ")
+                // Move the source file to the destination file using renameTo()
+                val result = sourceFile.renameTo(destinationFile)
+                print("step 6 ")
+                // Check if the operation was successful or not
+                if (result) {
+                    // The file was moved successfully
+//                    println("The file was moved successfully to ${destinationFile.path}")
+                    return destinationFile.path
+                } else {
+                    // The file could not be moved
+                    println("The file could not be moved")
+                    return "failed"
+                }
+            } else {
+                // Handle the case where getExternalFilesDir returned null
+                println("External storage directory is null. File move operation failed.")
+                return "failed"
+            }
+        } else {
+//            result.error("CREATE_FOLDER_ERROR", "Failed to create folder", null)
+            return "failed"
+        }
+
+
+    }
+
+
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun getCameraData(): Map<String, String> {
 //        println("inside the native fun get camera files")

@@ -13,7 +13,7 @@ import 'dart:io';
 
 import '../Pages/homePage/home_Page.dart';
 
-Future<String> moveFileInNative(filePath) async {
+Future<String> moveFileInNative(filePath,mainFileName) async {
   const channel = MethodChannel('NativeChannel');
   // print("STOPCODE SLDKFJSLD_4 i will move the file by the native channel");
 
@@ -21,10 +21,12 @@ Future<String> moveFileInNative(filePath) async {
 
   Map<String, dynamic> arguments = {
     "filepath": filePath, // Replace with your argument values
+    "mainFileName":mainFileName,
   };
-
+  print("sdlkfjsdlfk");
+  print(mainFileName);
   // Pass the arguments when invoking the method
-  var data = await channel.invokeMethod("moveScours", arguments);
+  var data = await channel.invokeMethod("moveScoursVideo", arguments);
   print("CODE SLDKJFDSF");
   return data.toString();
 }
@@ -39,6 +41,24 @@ Future<void> deleteFileInNative(filePath) async {
   Map data = await channel.invokeMethod("deleteSource", arguments);
 }
 
+//
+// String changetheFileNameReturnThePath(mainFilePath,FilePathAfterCompress){
+//   // Assuming 'filePath' contains the original path of the video file
+//   String originalFilePath = mainFilePath;
+//   String originalFileName = originalFilePath.split('/').last;
+//
+// // Assuming 'info.path' contains theriginal new path after compression
+//   String compressedFilePath = FilePathAfterCompress;
+//
+// // Rename the compressed file to the original filename
+//   File(compressedFilePath).renameSync(originalFileName);
+//
+// // Get the updated path after renaming
+//   String updatedCompressedFilePath = compressedFilePath.replaceFirst(
+//       RegExp(originalFileName), FilePathAfterCompress.split('/').last);
+//   return updatedCompressedFilePath;
+//
+// }
 Future<void> compressVideo(String userVideoQuality ,String filePath, bool deleteSource) async {
   await VideoCompress.setLogLevel(0);
   // print("at 3294_234098");
@@ -69,8 +89,9 @@ Future<void> compressVideo(String userVideoQuality ,String filePath, bool delete
       includeAudio: true,
     );
 
-
+    print("holaGodDAmn");
     print(info!.path);
+    print("gogogogo");
     ///to get the main file modified date
     File file = File(filePath);
     DateTime originalModificationTime = await file.lastModified();
@@ -80,8 +101,10 @@ Future<void> compressVideo(String userVideoQuality ,String filePath, bool delete
 
     int fileSizeBeforeCompress = await file.length();
     filesSizeBeforeCompressFromHomePage += fileSizeBeforeCompress;
+    // String filePathChanged = changetheFileNameReturnThePath(filePath,info.path);
+    String originalFileName = filePath.split('/').last;
 
-    String FileCompressedAndMovedPath = await moveFileInNative(info.path);
+    String FileCompressedAndMovedPath = await moveFileInNative(info.path,originalFileName);
     File filePP = File(FileCompressedAndMovedPath);
 
     int fileSizeAfterCompress = await filePP.length();
@@ -97,8 +120,10 @@ Future<void> compressVideo(String userVideoQuality ,String filePath, bool delete
       deleteFileInNative(filePath);
     }
   } catch (e) {
+    print(e);
+    // print("sdfhskjd");
     Fluttertoast.showToast(
-      msg: "error in compressing code 1489",
+      msg: "compressing canceled",
       toastLength: Toast.LENGTH_SHORT, // Duration of the toast
       gravity: ToastGravity.BOTTOM, // Location where the toast should appear
       timeInSecForIosWeb: 1, // Duration for iOS
