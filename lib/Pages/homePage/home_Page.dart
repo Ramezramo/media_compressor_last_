@@ -40,7 +40,7 @@ TextEditingController pictureWidth = TextEditingController(text: '1920');
 TextEditingController pictureHeight = TextEditingController(text: '1080');
 
 String picselectedValue = '480p';
-String vidselectedValue = '480p';
+String vidselectedValue = '540p';
 
 int filesSizeAfterCompressFromHomePage = 0;
 int filesSizeBeforeCompressFromHomePage = 0;
@@ -662,6 +662,50 @@ class _MainHomePageState extends State<MainHomePage> {
       progressColor: Colors.purple,
     );
   }
+  AlertDialog confirmCancelDialoge (){
+
+    return AlertDialog (
+      title: const Text("Alert"),
+      content: Container(
+        child: Text("want to stop compressing ?",style:TextStyle(fontSize: 12,fontWeight: FontWeight.w300), ),
+
+      ),
+
+      actions: [
+        Row(
+          children: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                isTransactionInProgress = false;
+                VideoCompress.cancelCompression();
+
+              },
+              child: const Text("stop"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("continue"),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void showCancelDialog(BuildContext context) {
+    AlertDialog cancelDialog = confirmCancelDialoge();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return cancelDialog;
+      },
+    );
+  }
+
 
   Widget _body() {
     print("STOPCODE LKMLMN VIEW THE NONREAL CODE");
@@ -712,10 +756,9 @@ class _MainHomePageState extends State<MainHomePage> {
                 })
           else if (startedCompressingProsses && photoOrPic == 1)
             startedCompressingProssesWidget(onPressedCancel:() {
-              setState(() {
-                isTransactionInProgress = false;
-                VideoCompress.cancelCompression();
-              });
+                print("cancel Pressed");
+                showCancelDialog( context);
+
             },
               vidsPreparedlen: videosPreparedLen.toString(),
               picsPreparedlen: photoesPreparedLen.toString(),
@@ -733,10 +776,9 @@ class _MainHomePageState extends State<MainHomePage> {
             )
           else if (startedCompressingProsses && photoOrPic == 0)
             startedCompressingProssesWidget(onPressedCancel: () {
-              setState(() {
-                isTransactionInProgress = false;
-                VideoCompress.cancelCompression();
-              });
+              showCancelDialog(context);
+
+
 
 
             },
