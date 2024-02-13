@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gallery_saver/gallery_saver.dart';
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
@@ -25,18 +26,37 @@ Future<void> deleteFileInNative(filePath) async {
 
 
 }
-Future<void> moveFileInNative(filePath) async {
+Future<void> moveFileInNative(filePath,movetofolderpath) async {
 
   const channel = MethodChannel('NativeChannel');
+
+
+  String mainWorkingFolder = "/storage/emulated/0/Compressed_media_RM/";
+  if (movetofolderpath == "camera") {
+    movetofolderpath = "${mainWorkingFolder}/cameraCompressedFiles";
+  } else {
+    // Use the 'basename' function from the 'path' package to get the last folder name
+    String lastFolder = basename(movetofolderpath);
+
+    // Print the result
+    print("Last folder name: $lastFolder");
+
+
+    movetofolderpath = "${mainWorkingFolder}/${lastFolder}";
+  }
+
+
   Map<String, dynamic> arguments = {
-    "filepath": filePath,  // Replace with your argument values
+    "filepath": filePath, // Replace with your argument values
+
+    "folderpath":movetofolderpath
   };
   var data = await channel.invokeMethod("moveScours",arguments);
   print("CODE SLDKJFDSF");
   print(data);
 }
 
-Future<File?> ImageCompressAndGetFile(minHeight,minWidth,quality,file, bool deleteSource,cameraOrFolder) async {
+Future<File?> ImageCompressAndGetFile(minHeight,minWidth,quality,file, bool deleteSource,cameraOrFolder,pathFileCameFrom) async {
   // print("$deleteSource at 987-98789");
   // quality will be 144p 360p 480p 720p
 
@@ -118,7 +138,7 @@ print(perquality);
         ///get the size Before the compressing
         // Check if the file was successfully saved
         if (await compressedFile.exists()) {
-          moveFileInNative(compressedFile.path);
+          moveFileInNative(compressedFile.path,pathFileCameFrom);
           if (deleteSource){
             // print("deleting 345_2352345");
             // print("id 578_67867");

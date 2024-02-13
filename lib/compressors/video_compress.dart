@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_video_compressor_last/Pages/compressfolder/compressfolderhome.dart';
@@ -14,15 +15,28 @@ import 'dart:io';
 
 import '../Pages/homePage/home_Page.dart';
 
-Future<String> moveFileInNative(filePath,mainFileName) async {
+Future<String> moveFileInNative(
+    filePath, mainFileName, movetofolderpath) async {
   const channel = MethodChannel('NativeChannel');
   // print("STOPCODE SLDKFJSLD_4 i will move the file by the native channel");
+  String mainWorkingFolder = "/storage/emulated/0/Compressed_media_RM/";
+  if (movetofolderpath == "camera") {
+    movetofolderpath = "${mainWorkingFolder}/cameraCompressedFiles";
+  } else {
+    // Use the 'basename' function from the 'path' package to get the last folder name
+    String lastFolder = basename(movetofolderpath);
+
+    // Print the result
+    print("Last folder name: $lastFolder");
 
 
+    movetofolderpath = "${mainWorkingFolder}/${lastFolder}";
+  }
 
   Map<String, dynamic> arguments = {
     "filepath": filePath, // Replace with your argument values
-    "mainFileName":mainFileName,
+    "mainFileName": mainFileName,
+    "folder-path": movetofolderpath
   };
   // print("sdlkfjsdlfk");
   // print(mainFileName);
@@ -60,29 +74,29 @@ Future<void> deleteFileInNative(filePath) async {
 //   return updatedCompressedFilePath;
 //
 // }
-Future<bool> compressVideo(String userVideoQuality ,String filePath, bool deleteSource,cameraOrFolder) async {
+Future<bool> compressVideo(String userVideoQuality, String filePath,
+    bool deleteSource, cameraOrFolder , pathFileCameFrom) async {
   await VideoCompress.setLogLevel(0);
   // print("at 3294_234098");
   // print(filePath);
   VideoQuality? selectedQuality;
   if (userVideoQuality == "360p") {
-    selectedQuality = VideoQuality.LowQuality;}
+    selectedQuality = VideoQuality.LowQuality;
+  }
   if (userVideoQuality == "480p") {
-    selectedQuality = VideoQuality.Res640x480Quality;}
-  else if (userVideoQuality == "540p") {
+    selectedQuality = VideoQuality.Res640x480Quality;
+  } else if (userVideoQuality == "540p") {
     selectedQuality = VideoQuality.Res960x540Quality;
   } else if (userVideoQuality == "720p") {
     selectedQuality = VideoQuality.Res1280x720Quality;
   } else if (userVideoQuality == "1080p") {
     selectedQuality = VideoQuality.Res1920x1080Quality;
-  }  else {
+  } else {
     // Handle the case when userVideoQuality is neither "480" nor "720"
     selectedQuality = VideoQuality.Res960x540Quality;
   }
 
-
   try {
-
     final info = await VideoCompress.compressVideo(
       filePath,
       quality: selectedQuality,
@@ -93,34 +107,33 @@ Future<bool> compressVideo(String userVideoQuality ,String filePath, bool delete
     print("holaGodDAmn");
     print(info!.path);
     print("gogogogo");
+
     ///to get the main file modified date
     File file = File(filePath);
     DateTime originalModificationTime = await file.lastModified();
+
     ///to get the main file modified date
 
-
-
     int fileSizeBeforeCompress = await file.length();
-    if (cameraOrFolder== "camera"){
-    filesSizeBeforeCompressFromHomePage += fileSizeBeforeCompress;}
-    else if (cameraOrFolder== "folder")
-    {
-      filesSizeBeforeCompressFromHomePageFolder += fileSizeBeforeCompress;}
+    if (cameraOrFolder == "camera") {
+      filesSizeBeforeCompressFromHomePage += fileSizeBeforeCompress;
+    } else if (cameraOrFolder == "folder") {
+      filesSizeBeforeCompressFromHomePageFolder += fileSizeBeforeCompress;
+    }
     // String filePathChanged = changetheFileNameReturnThePath(filePath,info.path);
     String originalFileName = filePath.split('/').last;
 
-    String FileCompressedAndMovedPath = await moveFileInNative(info.path,originalFileName);
+    String FileCompressedAndMovedPath =
+        await moveFileInNative(info.path, originalFileName,pathFileCameFrom);
     File filePP = File(FileCompressedAndMovedPath);
 
     int fileSizeAfterCompress = await filePP.length();
 
-
-    if (cameraOrFolder== "camera"){
-      filesSizeAfterCompressFromHomePage += fileSizeAfterCompress;}
-    else if (cameraOrFolder== "folder")
-    {
-      filesSizeAfterCompressFromHomePageFolder += fileSizeAfterCompress;}
-
+    if (cameraOrFolder == "camera") {
+      filesSizeAfterCompressFromHomePage += fileSizeAfterCompress;
+    } else if (cameraOrFolder == "folder") {
+      filesSizeAfterCompressFromHomePageFolder += fileSizeAfterCompress;
+    }
 
     print("CODE LKSDJFLSKDJF");
     print("$fileSizeBeforeCompress before $fileSizeAfterCompress after");
@@ -129,7 +142,6 @@ Future<bool> compressVideo(String userVideoQuality ,String filePath, bool delete
     //   print(info.path);
     // } // This will print the path to the compressed video
     if (deleteSource) {
-
       deleteFileInNative(filePath);
     }
     return true;

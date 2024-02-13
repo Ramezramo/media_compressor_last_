@@ -29,7 +29,6 @@ import 'package:path/path.dart' as path;
 
 import 'donePage.dart';
 
-
 class MainHomePage extends StatefulWidget {
   @override
   _MainHomePageState createState() => _MainHomePageState();
@@ -47,23 +46,22 @@ int filesSizeAfterCompressFromHomePage = 0;
 int filesSizeBeforeCompressFromHomePage = 0;
 const channel = MethodChannel('NativeChannel');
 
-Future<void> folderCompressorStart (context)async {
-  subscription.unsubscribe();
+Future<void> folderCompressorStart(context) async {
+  subscriptionhomepage.unsubscribe();
   String? directory = await FilePicker.platform.getDirectoryPath();
 
   if (directory != null) {
     print('Selected directory path: ${directory}');
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => compressFolderPage(workingDirectory: directory)),
+      MaterialPageRoute(
+          builder: (context) =>
+              compressFolderPage(workingDirectory: directory)),
     );
-
-
   } else {
     // User canceled the picker
   }
 }
-
 
 Future<void> showTost(text) async {
   Fluttertoast.showToast(
@@ -98,16 +96,14 @@ Future<void> comprssorImageone() async {
 
   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
   if (pickedFile != null)
-    ImageCompressAndGetFile(pictureHeight.text, pictureWidth.text, picselectedValue,
-        pickedFile.path, isSwitched,"camera");
-  if (pickedFile != null)
-    showTost("image saved in Compressed_media_RM Folder");
+    ImageCompressAndGetFile(pictureHeight.text, pictureWidth.text,
+        picselectedValue, pickedFile.path, isSwitched, "camera", "camera");
+  if (pickedFile != null) showTost("image saved in Compressed_media_RM Folder");
 }
 
 String filteringCurrentFileCompressed(video_Compressing_Percentage) {
   String video_Compressing_Percentage_Filtered;
   try {
-
     video_Compressing_Percentage_Filtered =
         video_Compressing_Percentage.toString().substring(2, 4);
 
@@ -117,7 +113,9 @@ String filteringCurrentFileCompressed(video_Compressing_Percentage) {
     return video_Compressing_Percentage_Filtered;
   }
 }
-late Subscription subscription;
+
+late Subscription subscriptionhomepage;
+
 class _MainHomePageState extends State<MainHomePage> {
   final double _initFabHeight = 120.0;
   double _fabHeight = 0;
@@ -150,7 +148,6 @@ class _MainHomePageState extends State<MainHomePage> {
   String fileUnderCompress = "no files yet";
 
   double? VideoProgress = 0.0;
-
 
   late double? video_Compressing_Percentage;
 
@@ -204,7 +201,7 @@ class _MainHomePageState extends State<MainHomePage> {
     fileUnderCompress = "no files yet";
 
     VideoProgress = 0.0;
-    subscription;
+    subscriptionhomepage;
 
     video_Compressing_Percentage;
 
@@ -236,7 +233,8 @@ class _MainHomePageState extends State<MainHomePage> {
     });
 
     if (pickedFile != null) {
-      await compressVideo(vidselectedValue,pickedFile.path, isSwitched,"camera");
+      await compressVideo(
+          vidselectedValue, pickedFile.path, isSwitched, "camera", "camera");
     }
     setState(() {
       isCompressing_From_Module = false;
@@ -342,13 +340,14 @@ class _MainHomePageState extends State<MainHomePage> {
   }
 
   Future<void> comprssImage(path) async {
-    await ImageCompressAndGetFile(
-        pictureHeight.text, pictureWidth.text, picselectedValue, path, isSwitched,"camera");
+    await ImageCompressAndGetFile(pictureHeight.text, pictureWidth.text,
+        picselectedValue, path, isSwitched, "camera", "camera");
   }
 
   Future<bool> comprssorVideo(path) async {
     setState(() {});
-    bool success = await compressVideo(vidselectedValue,path, isSwitched,"camera");
+    bool success = await compressVideo(
+        vidselectedValue, path, isSwitched, "camera", "camera");
 
     setState(() {
       VideoProgress = 0;
@@ -403,8 +402,8 @@ class _MainHomePageState extends State<MainHomePage> {
     // print(SortThePics(imagesObtainedFromNative));
     for (final entry in SortThePics(imagesObtainedFromNative)) {
       // print("compressing photos $entry");
-      compressed ++;
-      picsCompressed ++;
+      compressed++;
+      picsCompressed++;
       await comprssImage(entry);
     }
   }
@@ -412,7 +411,7 @@ class _MainHomePageState extends State<MainHomePage> {
   Future<void> CompressThePreparedVids() async {
     for (final entry in SortTheVideos(videosObtainedFromNative)) {
       print("compressing vids");
-      if (!isTransactionInProgress){
+      if (!isTransactionInProgress) {
         break;
       }
 
@@ -423,15 +422,14 @@ class _MainHomePageState extends State<MainHomePage> {
       });
 
       bool success = await comprssorVideo(entry);
-      if (success){
-       setState(() {
-         vidsCompressed++;
+      if (success) {
+        setState(() {
+          vidsCompressed++;
 
-         compressed ++;
-         progress_maker();
-       });
-     }
-
+          compressed++;
+          progress_maker();
+        });
+      }
     }
   }
 
@@ -446,21 +444,28 @@ class _MainHomePageState extends State<MainHomePage> {
       photoOrPic = 0;
     });
 
-    if (isTransactionInProgress){
-    await CompressThePreparedPics();
-    // print(picsCompressed);
-    // print("CODE LSKDJFSDF");
-    showTost("compressing finished");
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => donePage(FilesSizeAfter: filesSizeAfterCompressFromHomePage,FilesSizeBefore: filesSizeBeforeCompressFromHomePage,TotalFilesCompressed: "$compressed",TotalPics:"$picsCompressed" ,TotalVideos: "$vidsCompressed",)),
-    );}
+    if (isTransactionInProgress) {
+      await CompressThePreparedPics();
+      // print(picsCompressed);
+      // print("CODE LSKDJFSDF");
+      showTost("compressing finished");
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => donePage(
+            FilesSizeAfter: filesSizeAfterCompressFromHomePage,
+            FilesSizeBefore: filesSizeBeforeCompressFromHomePage,
+            TotalFilesCompressed: "$compressed",
+            TotalPics: "$picsCompressed",
+            TotalVideos: "$vidsCompressed",
+          ),
+        ),
+      );
+    }
     // PushDonePage();
     setState(() {
       restarter();
     });
-
-
   }
 
   @override
@@ -468,7 +473,7 @@ class _MainHomePageState extends State<MainHomePage> {
     // TODO: implement initSta
 
     getCameraFilesData();
-    subscription = VideoCompress.compressProgress$.subscribe(
+    subscriptionhomepage = VideoCompress.compressProgress$.subscribe(
         (VideoProgress) => setState(() => this.VideoProgress = VideoProgress));
     _fabHeight = _initFabHeight;
     print("CODE SDLFKJSKJ");
@@ -481,7 +486,7 @@ class _MainHomePageState extends State<MainHomePage> {
   @override
   void dispose() {
     // Dispose of resources to prevent memory leaks.
-    subscription.unsubscribe(); // Close the stream controller.
+    subscriptionhomepage.unsubscribe(); // Close the stream controller.
 
     super.dispose();
   }
@@ -520,15 +525,18 @@ class _MainHomePageState extends State<MainHomePage> {
           ),
 
           Positioned(
-              top: 0,
-              child: ClipRRect(
-                  child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).padding.top,
-                        color: Colors.transparent,
-                      )))),
+            top: 0,
+            child: ClipRRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).padding.top,
+                  color: Colors.transparent,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -572,7 +580,12 @@ class _MainHomePageState extends State<MainHomePage> {
                                       blurRadius: 8.0,
                                     )
                                   ]),
-                              child: folderCompressorWidget(),
+                              child: folderCompressorWidget(onPressed: () {
+                                  
+                                  folderCompressorStart(context).then((value) =>     subscriptionhomepage = VideoCompress.compressProgress$.subscribe(
+                                          (VideoProgress) => setState(() => this.VideoProgress = VideoProgress)));
+                                
+                              },),
                             ),
                             const SizedBox(
                               height: 10,
@@ -604,7 +617,9 @@ class _MainHomePageState extends State<MainHomePage> {
                     )
                   ],
                 ),
-                SizedBox(height: 20,),
+                SizedBox(
+                  height: 20,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
@@ -740,15 +755,16 @@ class _MainHomePageState extends State<MainHomePage> {
       progressColor: Colors.purple,
     );
   }
-  AlertDialog confirmCancelDialoge (){
 
-    return AlertDialog (
+  AlertDialog confirmCancelDialoge() {
+    return AlertDialog(
       title: const Text("Alert"),
       content: Container(
-        child: Text("want to stop compressing ?",style:TextStyle(fontSize: 12,fontWeight: FontWeight.w300), ),
-
+        child: Text(
+          "want to stop compressing ?",
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
+        ),
       ),
-
       actions: [
         Row(
           children: [
@@ -757,7 +773,6 @@ class _MainHomePageState extends State<MainHomePage> {
                 Navigator.of(context).pop();
                 isTransactionInProgress = false;
                 VideoCompress.cancelCompression();
-
               },
               child: const Text("stop"),
             ),
@@ -783,7 +798,6 @@ class _MainHomePageState extends State<MainHomePage> {
       },
     );
   }
-
 
   Widget _body() {
     print("STOPCODE LKMLMN VIEW THE NONREAL CODE");
@@ -833,11 +847,11 @@ class _MainHomePageState extends State<MainHomePage> {
                   });
                 })
           else if (startedCompressingProsses && photoOrPic == 1)
-            startedCompressingProssesWidget(onPressedCancel:() {
+            startedCompressingProssesWidget(
+              onPressedCancel: () {
                 print("cancel Pressed");
-                showCancelDialog( context);
-
-            },
+                showCancelDialog(context);
+              },
               vidsPreparedlen: videosPreparedLen.toString(),
               picsPreparedlen: photoesPreparedLen.toString(),
               vidthumbnail: thumbnailVideoPath,
@@ -853,21 +867,16 @@ class _MainHomePageState extends State<MainHomePage> {
               photoOrPic: photoOrPic,
             )
           else if (startedCompressingProsses && photoOrPic == 0)
-            startedCompressingProssesWidget(onPressedCancel: () {
-              showCancelDialog(context);
-
-
-
-
-            },
+            startedCompressingProssesWidget(
+              onPressedCancel: () {
+                showCancelDialog(context);
+              },
               theEnimationEnded: () {
                 if (!startedCompressingProsses) {
-
                   // setState(() {
                   //   restarter();
                   // });
                 } else {
-
                   setState(() {
                     bufferingPics = true;
                   });
@@ -1086,7 +1095,8 @@ class videoPicWidget extends StatelessWidget {
     required this.currentFilePercentageForLinear,
     required this.fileBeingCompressedPercentageText,
     required this.fileName,
-    required this.vidsPreparedlen, required this.onPressedCancel,
+    required this.vidsPreparedlen,
+    required this.onPressedCancel,
   });
 
   final Uint8List? vidthumbnail;
@@ -1246,14 +1256,15 @@ class startedCompressingProssesWidget extends StatelessWidget {
     required this.currentFilePercentagePic,
     required this.vidsPreparedlen,
     required this.picsPreparedlen,
-    this.theEnimationEnded,required this.onPressedCancel,
+    this.theEnimationEnded,
+    required this.onPressedCancel,
   });
   @override
   Widget build(BuildContext context) {
     if (photoOrPic == 0) {
       // print("CODE LKJDSFLK");
       return picViewerWidget(
-        pictureTotal: int.parse(picsPreparedlen),
+          pictureTotal: int.parse(picsPreparedlen),
           theEnimationEnded: theEnimationEnded,
           totalFilesPercentage: totalFilesPercentage,
           filesCompressed: picsCompressed,
@@ -1264,7 +1275,7 @@ class startedCompressingProssesWidget extends StatelessWidget {
           fileName: fileName);
     } else if (photoOrPic == 1) {
       return videoPicWidget(
-        onPressedCancel: onPressedCancel,
+          onPressedCancel: onPressedCancel,
           vidsPreparedlen: vidsPreparedlen,
           vidthumbnail: vidthumbnail,
           totalFilesPercentage: totalFilesPercentage,
@@ -1294,7 +1305,8 @@ class picViewerWidget extends StatelessWidget {
     required this.vidsCompressed,
     required this.currentFilePercentage,
     required this.fileName,
-    this.theEnimationEnded, required this.pictureTotal,
+    this.theEnimationEnded,
+    required this.pictureTotal,
   });
 
   final double totalFilesPercentage;
@@ -1798,10 +1810,10 @@ class aRowWithBoxDecoration extends StatelessWidget {
   }
 }
 
-
 class folderCompressorWidget extends StatelessWidget {
+  final Function()? onPressed;
   const folderCompressorWidget({
-    super.key,
+    super.key,required this.onPressed,
   });
 
   @override
@@ -1809,14 +1821,10 @@ class folderCompressorWidget extends StatelessWidget {
     return IconButton(
       icon: Icon(Icons.folder),
       color: Colors.white,
-      onPressed: () {
-        folderCompressorStart(context);
-      },
+      onPressed: onPressed,
     );
   }
 }
-
-
 
 class singleImageCompressor extends StatelessWidget {
   const singleImageCompressor({
@@ -1859,8 +1867,15 @@ class SettingsWidget extends StatefulWidget {
 }
 
 class _SettingsWidgetState extends State<SettingsWidget> {
-  List<String> picDropdownValues = ['1080p','720p', '540p','480p', '360p', '144p'];
-  List<String> VideoDropdownValues = ['1080p','720p', '540p','480p', '360p'];
+  List<String> picDropdownValues = [
+    '1080p',
+    '720p',
+    '540p',
+    '480p',
+    '360p',
+    '144p'
+  ];
+  List<String> VideoDropdownValues = ['1080p', '720p', '540p', '480p', '360p'];
 
   @override
   Widget build(BuildContext context) {
@@ -1916,7 +1931,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
               margin: EdgeInsets.all(10), // Set margins as per your preference
               child: Padding(
                 padding:
-                EdgeInsets.all(10), // Set padding as per your preference
+                    EdgeInsets.all(10), // Set padding as per your preference
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -1949,7 +1964,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
               margin: EdgeInsets.all(10), // Set margins as per your preference
               child: Padding(
                 padding:
-                EdgeInsets.all(10), // Set padding as per your preference
+                    EdgeInsets.all(10), // Set padding as per your preference
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -1979,7 +1994,6 @@ class _SettingsWidgetState extends State<SettingsWidget> {
           // Dropdown for selecting a value
         ],
       ),
-
     );
   }
 }

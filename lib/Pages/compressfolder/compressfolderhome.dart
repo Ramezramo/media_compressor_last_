@@ -27,6 +27,8 @@ import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as path;
 
+import '../homePage/home_Page.dart';
+
 
 
 
@@ -274,12 +276,12 @@ class _compressFolderPageState extends State<compressFolderPage> {
 
   Future<void> comprssImage(path) async {
     await ImageCompressAndGetFile(
-        pictureHeightFolder.text, pictureWidthFolder.text, picselectedValueFolder, path, isSwitchedFolder,"folder");
+        pictureHeightFolder.text, pictureWidthFolder.text, picselectedValueFolder, path, isSwitchedFolder,"folder",widget.workingDirectory);
   }
 
   Future<bool> comprssorVideo(path) async {
     setState(() {});
-    bool success = await compressVideo(vidselectedValueFolder,path, isSwitchedFolder,"folder");
+    bool success = await compressVideo(vidselectedValueFolder,path, isSwitchedFolder,"folder",widget.workingDirectory);
     setState(() {
       VideoProgress = 0;
     });
@@ -384,6 +386,10 @@ class _compressFolderPageState extends State<compressFolderPage> {
         context,
         MaterialPageRoute(builder: (context) => donePage(FilesSizeAfter: filesSizeAfterCompressFromHomePageFolder,FilesSizeBefore: filesSizeBeforeCompressFromHomePageFolder,TotalFilesCompressed: "$compressed",TotalPics:"$picsCompressed" ,TotalVideos: "$vidsCompressed",)),
       );}
+    // subscription.unsubscribe();
+
+    Navigator.of(context).pop();
+
     // PushDonePage();
     setState(() {
       restarter();

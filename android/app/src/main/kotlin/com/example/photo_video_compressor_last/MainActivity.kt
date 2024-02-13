@@ -31,7 +31,7 @@ class MainActivity: FlutterActivity() {
                 call, result ->
             if(call.method=="createFolder") {
 //                println("creating the folder ")
-                createTheFolder();
+//                createTheFolder();
 
 
             }else if (call.method == "getFilePath") {
@@ -62,9 +62,12 @@ class MainActivity: FlutterActivity() {
 //                println("moveScours CODE SLDKFJSOI3445")
                 val file_path = call.argument<String>("filepath")
                 val filePathAsString = file_path?.toString() ?: ""
-//                println("this is the file path")
-//                println(filePathAsString)
-                val fileMovedPath = moveFile(filePathAsString,"/storage/emulated/0/Compressed_media_RM")
+
+
+                val folder_path_move_to = call.argument<String>("folderpath")
+                val folderPathAsString = folder_path_move_to?.toString() ?: ""
+
+                val fileMovedPath = moveFile(filePathAsString,folderPathAsString)
                 result.success(fileMovedPath)
             } else if (call.method =="moveScoursVideo"){
 //                println("moveScours CODE SLDKFJSOI3445")
@@ -72,8 +75,13 @@ class MainActivity: FlutterActivity() {
                 val filePathAsString = file_path?.toString() ?: ""
 
                 val mainFileName = call.argument<String>("mainFileName")
+
+
+                val folder_path = call.argument<String>("folder-path")
+                val folder_pathtring = folder_path?.toString() ?: ""
+
                 if (mainFileName != null && filePathAsString.isNotBlank()) {
-                    val fileMovedPath = moveFileVideo(mainFileName,filePathAsString,"/storage/emulated/0/Compressed_media_RM")
+                    val fileMovedPath = moveFileVideo(mainFileName,filePathAsString,folder_pathtring)
                     result.success(fileMovedPath)
                 } else {
                     result.error("INVALID_ARGUMENTS", "mainFileName or filePathAsString is null or blank", null)
@@ -109,14 +117,14 @@ class MainActivity: FlutterActivity() {
 //        }
 //    }
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun createTheFolder(): Boolean {
+    private fun createTheFolder(to : String): Boolean {
 
 //        println("inside the function")
-        val extStoragePath = Environment.getExternalStorageDirectory ().absolutePath
+//        val extStoragePath = Environment.getExternalStorageDirectory ().absolutePath
         // Create a folder name
-        val folderName = "Compressed_media_RM"
+//        val folderName = "Compressed_media_RM"
         // Create a File object with the folder path
-        val folder = File (extStoragePath, folderName)
+        val folder = File (to)
 
         // Check if the folder exists and create it if not
 //        println("i will check if the folder created or no")
@@ -139,7 +147,7 @@ class MainActivity: FlutterActivity() {
 
 
     fun moveFile(from: String, to: String) : String {
-        val folderCreated = createTheFolder()
+        val folderCreated = createTheFolder(to)
 
         if (folderCreated) {
             // result.success("Folder created successfully")
@@ -192,7 +200,7 @@ class MainActivity: FlutterActivity() {
 
 
     fun moveFileVideo(mainFileNname : String,from: String, to: String) : String {
-        val folderCreated = createTheFolder()
+        val folderCreated = createTheFolder(to)
 
         if (folderCreated) {
             // result.success("Folder created successfully")
