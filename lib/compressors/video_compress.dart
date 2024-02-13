@@ -23,8 +23,8 @@ Future<String> moveFileInNative(filePath,mainFileName) async {
     "filepath": filePath, // Replace with your argument values
     "mainFileName":mainFileName,
   };
-  print("sdlkfjsdlfk");
-  print(mainFileName);
+  // print("sdlkfjsdlfk");
+  // print(mainFileName);
   // Pass the arguments when invoking the method
   var data = await channel.invokeMethod("moveScoursVideo", arguments);
   print("CODE SLDKJFDSF");
