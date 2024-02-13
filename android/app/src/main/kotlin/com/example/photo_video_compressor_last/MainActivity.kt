@@ -1,11 +1,8 @@
 package com.example.photo_video_compressor_last
 
 
-import android.content.ContentValues
 import android.os.Build
 import android.os.Environment
-import android.provider.DocumentsContract
-import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
@@ -14,13 +11,7 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
 import java.util.*
-import java.io.IOException
-import java.nio.file.FileAlreadyExistsException
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.StandardCopyOption
-import android.net.Uri
-import android.database.Cursor
+
 //import android.provider.MediaStore
 //import io.flutter.embedding.android.FlutterActivity
 //import io.flutter.embedding.engine.FlutterEngine
@@ -49,8 +40,16 @@ class MainActivity: FlutterActivity() {
 //                    val filePath = openImagePicker()
 //                    result.success(filePath)
             }else if (call.method=="giveMEcameraData"){
-                var dataReturn = getCameraData()
+                val dataReturn = getCameraData()
                 result.success(dataReturn)
+            }else if (call.method=="giveMEThisFolderData"){
+                val folderPath = call.argument<String>("Folderpath")
+                if (folderPath != null) {
+                    val dataReturn = getFolderData(folderPath)
+                    result.success(dataReturn)
+                } else {
+                    result.error("INVALID_ARGUMENT", "Folderpath is null", null)
+                }
             } else if (call.method=="deleteSource"){
                 val file_path = call.argument<String>("filepath")
                 val filePathAsString = file_path?.toString() ?: ""
@@ -246,6 +245,37 @@ class MainActivity: FlutterActivity() {
         }
 
 
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun getFolderData(FolderPath: String): Map<String, String> {
+        val resultMap = mutableMapOf<String, String>()
+        try {
+            // Ensure FolderPath is not nullable
+            val workingDirectory = File(FolderPath)
+            if (workingDirectory.exists()) {
+                println("sdklfjsdl folder existed")
+
+                if (workingDirectory.exists() && workingDirectory.isDirectory) {
+                    val subfolderFiles = workingDirectory.listFiles()
+                    println("at 9238745_3458909")
+                    println(subfolderFiles)
+
+                    subfolderFiles?.forEach { file ->
+                        if (file.isFile) {
+                            val path = file.absolutePath
+                            val lastModified = file.lastModified().toString()
+                            resultMap[path] = lastModified
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            throw e
+        }
+        println("resultMapfdfd")
+        println(resultMap)
+        return resultMap
     }
 
 

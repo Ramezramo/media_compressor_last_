@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 
+import '../Pages/compressfolder/compressfolderhome.dart';
 import '../Pages/homePage/home_Page.dart';
 // import '../../../vedioAndPhotosEdited/lib/Utils/Show_Notification.dart';
 
@@ -35,7 +36,7 @@ Future<void> moveFileInNative(filePath) async {
   print(data);
 }
 
-Future<File?> ImageCompressAndGetFile(minHeight,minWidth,quality,file, bool deleteSource) async {
+Future<File?> ImageCompressAndGetFile(minHeight,minWidth,quality,file, bool deleteSource,cameraOrFolder) async {
   // print("$deleteSource at 987-98789");
   // quality will be 144p 360p 480p 720p
 
@@ -88,7 +89,11 @@ print(perquality);
         DateTime originalModificationTime = await fileReadDate.lastModified();
         ///get the size Before the compressing
         int fileSizeBeforeCompress = await fileReadDate.length();
-        filesSizeBeforeCompressFromHomePage += fileSizeBeforeCompress ;
+        if (cameraOrFolder== "camera"){
+          filesSizeBeforeCompressFromHomePage += fileSizeBeforeCompress;}
+        else if (cameraOrFolder== "folder")
+        {
+          filesSizeBeforeCompressFromHomePageFolder += fileSizeBeforeCompress;}
         ///get the size Before the compressing
 
 
@@ -105,7 +110,11 @@ print(perquality);
         await compressedFile.setLastModified(originalModificationTime);
         ///get the size after the compressing
         int fileSizeAfterCompress = await compressedFile.length();
-        filesSizeAfterCompressFromHomePage += fileSizeAfterCompress ;
+        if (cameraOrFolder== "camera"){
+          filesSizeAfterCompressFromHomePage += fileSizeAfterCompress;}
+        else if (cameraOrFolder== "folder")
+        {
+          filesSizeAfterCompressFromHomePageFolder += fileSizeAfterCompress;}
         ///get the size Before the compressing
         // Check if the file was successfully saved
         if (await compressedFile.exists()) {

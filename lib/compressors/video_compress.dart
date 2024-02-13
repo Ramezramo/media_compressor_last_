@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:photo_video_compressor_last/Pages/compressfolder/compressfolderhome.dart';
 
 import 'package:video_compress/video_compress.dart';
 import 'package:path/path.dart' as path;
@@ -59,7 +60,7 @@ Future<void> deleteFileInNative(filePath) async {
 //   return updatedCompressedFilePath;
 //
 // }
-Future<void> compressVideo(String userVideoQuality ,String filePath, bool deleteSource) async {
+Future<bool> compressVideo(String userVideoQuality ,String filePath, bool deleteSource,cameraOrFolder) async {
   await VideoCompress.setLogLevel(0);
   // print("at 3294_234098");
   // print(filePath);
@@ -100,7 +101,11 @@ Future<void> compressVideo(String userVideoQuality ,String filePath, bool delete
 
 
     int fileSizeBeforeCompress = await file.length();
-    filesSizeBeforeCompressFromHomePage += fileSizeBeforeCompress;
+    if (cameraOrFolder== "camera"){
+    filesSizeBeforeCompressFromHomePage += fileSizeBeforeCompress;}
+    else if (cameraOrFolder== "folder")
+    {
+      filesSizeBeforeCompressFromHomePageFolder += fileSizeBeforeCompress;}
     // String filePathChanged = changetheFileNameReturnThePath(filePath,info.path);
     String originalFileName = filePath.split('/').last;
 
@@ -108,7 +113,15 @@ Future<void> compressVideo(String userVideoQuality ,String filePath, bool delete
     File filePP = File(FileCompressedAndMovedPath);
 
     int fileSizeAfterCompress = await filePP.length();
-    filesSizeAfterCompressFromHomePage += fileSizeAfterCompress;
+
+
+    if (cameraOrFolder== "camera"){
+      filesSizeAfterCompressFromHomePage += fileSizeAfterCompress;}
+    else if (cameraOrFolder== "folder")
+    {
+      filesSizeAfterCompressFromHomePageFolder += fileSizeAfterCompress;}
+
+
     print("CODE LKSDJFLSKDJF");
     print("$fileSizeBeforeCompress before $fileSizeAfterCompress after");
     await filePP.setLastModified(originalModificationTime);
@@ -119,9 +132,11 @@ Future<void> compressVideo(String userVideoQuality ,String filePath, bool delete
 
       deleteFileInNative(filePath);
     }
+    return true;
   } catch (e) {
     print(e);
     // print("sdfhskjd");
+
     Fluttertoast.showToast(
       msg: "compressing canceled",
       toastLength: Toast.LENGTH_SHORT, // Duration of the toast
@@ -131,5 +146,6 @@ Future<void> compressVideo(String userVideoQuality ,String filePath, bool delete
       textColor: Colors.white, // Text color of the toast message
       fontSize: 14, // Font size of the toast message
     );
+    return false;
   }
 }
