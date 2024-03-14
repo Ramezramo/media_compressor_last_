@@ -22,6 +22,10 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 import '../../compressors/image_compress.dart';
 import '../../compressors/video_compress.dart';
 import '../../main.dart';
+// import '../NOTIFICATION/TEST.dart';
+// import '../NOTIFICATION/TEST.dart';
+// import '../NOTIFICATION/TEST.dart';
+import '../NOTIFICATION/notificationhundler.dart';
 import '../linear_percent_indicator.dart';
 import 'dart:typed_data';
 import 'package:image/image.dart' as img;
@@ -434,6 +438,9 @@ class _MainHomePageState extends State<MainHomePage> {
   }
 
   void startCompressingChain() async {
+
+    //TODO IN THIS LINE I WILL LET THE PROCESS START
+
     setState(() {
       startedCompressingProsses = true;
       photoOrPic = 1;
@@ -448,7 +455,10 @@ class _MainHomePageState extends State<MainHomePage> {
       await CompressThePreparedPics();
       // print(picsCompressed);
       // print("CODE LSKDJFSDF");
-      showTost("compressing finished");
+      // showTost("compressing finished");
+      // TODO IN THIS LINE I WILL LET THE PROCESS STOP
+
+      await NotificationService().showNotification("compression finished","total files compressed $compressed ");
       await Navigator.push(
         context,
         MaterialPageRoute(
@@ -461,6 +471,7 @@ class _MainHomePageState extends State<MainHomePage> {
           ),
         ),
       );
+
     }
     // PushDonePage();
     setState(() {

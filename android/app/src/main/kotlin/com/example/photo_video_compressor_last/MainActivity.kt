@@ -29,16 +29,10 @@ class MainActivity: FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
                 call, result ->
-            if(call.method=="createFolder") {
-//                println("creating the folder ")
-//                createTheFolder();
+            if(call.method=="STARTPROCESS") {
 
+            }else if (call.method == "STOPPROCESS") {
 
-            }else if (call.method == "getFilePath") {
-                println("there is nothing to worry about")
-//                    val uri = Uri.parse(call.argument<String>("uri"))
-//                    val filePath = openImagePicker()
-//                    result.success(filePath)
             }else if (call.method=="giveMEcameraData"){
                 val dataReturn = getCameraData()
                 result.success(dataReturn)
@@ -59,6 +53,7 @@ class MainActivity: FlutterActivity() {
 
 
             else if (call.method =="moveScours"){
+
 //                println("moveScours CODE SLDKFJSOI3445")
                 val file_path = call.argument<String>("filepath")
                 val filePathAsString = file_path?.toString() ?: ""

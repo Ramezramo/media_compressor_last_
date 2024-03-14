@@ -1,13 +1,23 @@
 
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:photo_video_compressor_last/Pages/testing/testforegroung.dart';
 
+// import 'Pages/NOTIFICATION/TEST.dart';
+import 'Pages/NOTIFICATION/notificationhundler.dart';
 import 'Pages/homePage/donePage.dart';
 import 'Pages/homePage/home_Page.dart';
+// import 'Pages/homePage/home_Page.dart';
 // import 'Pages/homePageWidgets/home_Page.dart';
 
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize notification service and request permission
+  final notificationService = NotificationService();
+  await notificationService.init();
+
   runApp(const MyApp());
 }
 
